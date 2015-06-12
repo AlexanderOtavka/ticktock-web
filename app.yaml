@@ -1,0 +1,18 @@
+application: anticipate-web
+
+# Version 0.0.0
+version: v0-0-0
+api_version: 1
+runtime: python27
+threadsafe: true
+
+
+handlers:
+
+- url: /
+  static_files: dist/index\.html
+  upload: dist/index\.html
+
+- url: /(.*)
+  static_files: dist/\1
+  upload: dist/.*
