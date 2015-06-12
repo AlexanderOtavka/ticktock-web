@@ -22,35 +22,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   /* Application theme */
 
   :root {
-    --dark-primary-color: #303F9F;
-    --default-primary-color: #3F51B5;
-    --light-primary-color: #C5CAE9;
-    --text-primary-color: #ffffff; /*text/icons*/
-    --accent-color: #FF4081;
-    --primary-background-color: #c5cae9;
-    --primary-text-color: #212121;
-    --secondary-text-color: #727272;
-    --disabled-text-color: #bdbdbd;
-    --divider-color: #B6B6B6;
+    --color-dark-primary: #C2185B;
+    --color-default-primary: #E91E63;
+    --color-light-primary: #C5CAE9;
+    --color-text-primary: #ffffff; /*text/icons*/
+    --color-accent: #FF4081;
+    --color-primary-background: #c5cae9;
+    --color-primary-text: #212121;
+    --color-secondary-text: #727272;
+    --color-disabled-text: #bdbdbd;
+    --color-divider: #B6B6B6;
 
     /* Components */
 
     /* paper-drawer-panel */
-    --drawer-menu-color: #ffffff;
-    --drawer-border-color: 1px solid #ccc;
-    --drawer-toolbar-border-color: 1px solid rgba(0, 0, 0, 0.22);
+    --color-drawer-menu: #ffffff;
+    --color-drawer-border: 1px solid #ccc;
+    --color-drawer-toolbar-border: 1px solid rgba(0, 0, 0, 0.22);
 
     /* paper-menu */
-    --paper-menu-background-color: #fff;
-    --menu-link-color: #111111;
+    --color-paper-menu-background: #fff;
+    --color-menu-link: #111111;
   }
 
   /* General styles */
 
   #drawerToolbar {
-    color: var(--secondary-text-color);
-    background-color: var(--drawer-menu-color);
-    border-bottom: var(--drawer-toolbar-border-color);
+    color: var(--color-secondary-text);
+    background-color: var(--color-drawer-menu);
+    border-bottom: var(--color-drawer-toolbar-border);
     height: 64px;
   }
 
@@ -69,12 +69,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   }
 
   .paper-menu > .iron-selected {
-    color: var(--default-primary-color);
+    color: var(--color-default-primary);
   }
 
   paper-menu a {
     text-decoration: none;
-    color: var(--menu-link-color);
+    color: var(--color-menu-link);
     display: -ms-flexbox;
     display: -webkit-flex;
     display: flex;
@@ -92,6 +92,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     line-height: 24px;
     min-height: 48px;
     padding: 0 16px;
+  }
+  
+  #mainToolbar {
+    background-color: var(--color-default-primary);
   }
 
   #mainToolbar .middle {
