@@ -10,23 +10,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <!doctype html>
 <html>
-
   <head>
-    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-    <title>Elements Test Runner</title>
     <meta charset="UTF-8">
-
-    <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+    <meta name="viewport" 
+          content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <title>Elements Test Runner</title>
+    
+    <script src="../../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
     <script src="../../bower_components/web-component-tester/browser.js"></script>
   </head>
 
   <body>
-
     <script>
-      WCT.loadSuites(['my-greeting-basic.html', 'my-list-basic.html']);
+      // TODO: load unit tests here
+      // WCT.loadSuites(['my-suite1.html', 'my-suite2.html']);
+      WCT.loadSuites([]);
     </script>
-
-
   </body>
-
 </html>
