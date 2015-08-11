@@ -1,6 +1,6 @@
 # Anticipate Web
 
-The anticipate web app.  Based off of the polymer starter kit.
+TickTock is an app that counts down to the upcoming events that you care about. The web client lives here. Based off of the polymer starter kit.
 
 ![](https://cloud.githubusercontent.com/assets/110953/7877439/6a69d03e-0590-11e5-9fac-c614246606de.png) 
 ## Polymer Starter Kit
