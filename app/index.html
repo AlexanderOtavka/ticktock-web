@@ -13,6 +13,11 @@
     <!-- build:css(.tmp) styles/main.css -->
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
+
+    <!-- Angular Material CSS using GitCDN to load directly from `bower-material/master` -->
+    <link rel="stylesheet" href="https://gitcdn.xyz/repo/angular/bower-material/master/angular-material.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+          rel="stylesheet">
   </head>
   <body ng-app="ticktockWebApp">
     <!--[if lte IE 8]>
@@ -21,30 +26,23 @@
 
     <!-- Add your site or application content here -->
     <div class="header">
-      <div class="navbar navbar-default" role="navigation">
-        <div class="container">
-          <div class="navbar-header">
-
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#js-navbar-collapse">
-              <span class="sr-only">Toggle navigation</span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
-
-            <a class="navbar-brand" href="#/">ticktockWeb</a>
-          </div>
-
-          <div class="collapse navbar-collapse" id="js-navbar-collapse">
-
-            <ul class="nav navbar-nav">
-              <li class="active"><a href="#/">Home</a></li>
-              <li><a ng-href="#/about">About</a></li>
-              <li><a ng-href="#/">Contact</a></li>
-            </ul>
-          </div>
+      <md-toolbar>
+        <div class="md-toolbar-tools">
+          <md-button class="md-icon-button" aria-label="Settings">
+            <md-icon> menu </md-icon>
+          </md-button>
+          <h2>
+            <span>Toolbar with Icon Buttons</span>
+          </h2>
+          <span flex></span>
+          <md-button class="md-icon-button" aria-label="Favorite">
+            <md-icon style="color: greenyellow;">check</md-icon>
+          </md-button>
+          <md-button class="md-icon-button" aria-label="More">
+            <md-icon> more_vert </md-icon>
+          </md-button>
         </div>
-      </div>
+      </md-toolbar>
     </div>
 
     <div class="container">
@@ -52,9 +50,6 @@
     </div>
 
     <div class="footer">
-      <div class="container">
-        <p><span class="glyphicon glyphicon-heart"></span> from the Yeoman team</p>
-      </div>
     </div>
 
 
@@ -90,5 +85,8 @@
         <script src="scripts/controllers/main.js"></script>
         <script src="scripts/controllers/about.js"></script>
         <!-- endbuild -->
-</body>
+    <!-- Angular Material Javascript now available via Google CDN; version 0.11.2 used here -->
+    <script src="https://gitcdn.xyz/repo/angular/bower-material/master/angular-material.js"></script>
+
+  </body>
 </html>
