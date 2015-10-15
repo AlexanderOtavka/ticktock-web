@@ -89,3 +89,13 @@ body {
     border-bottom: 0;
   }
 }
+
+#container {
+  width: 100px;
+  height: 100px;
+}
+
+#container > svg {
+  width: 100%;
+  display: block;
+}

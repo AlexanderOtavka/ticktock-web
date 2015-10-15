@@ -1,3 +1,22 @@
 <md-content>
-
+  <div ng-repeat="thing in things">
+    <md-toolbar class="md-whiteframe-3dp">
+      <div class="md-toolbar-tools">
+        <md-icon> announcement </md-icon>
+        <h2>
+          <span style="padding-left: 5px;">{{ thing + 1 }}</span>
+        </h2>
+        <span flex></span>
+        <md-button class="md-icon-button" aria-label="Favorite">
+          <md-icon>star_rate</md-icon>
+        </md-button>
+        <md-button class="md-icon-button" aria-label="More">
+          <md-icon> more_vert </md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <div style="padding: 55px">
+      <md-progress-circular md-mode="determinate" value="55" md-diameter="200"></md-progress-circular>
+    </div>
+  </div>
 </md-content>

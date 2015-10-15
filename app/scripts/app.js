@@ -20,6 +20,11 @@ angular
     'ngMaterial',
     'ngTouch'
   ])
+  .config(function($mdThemingProvider) {
+    $mdThemingProvider.theme('default')
+      .primaryPalette('pink')
+      .accentPalette('orange');
+  })
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
