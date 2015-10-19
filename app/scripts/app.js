@@ -18,7 +18,8 @@ angular
     'ngRoute',
     'ngSanitize',
     'ngMaterial',
-    'ngTouch'
+    'ngTouch',
+    'ngProgress'
   ])
   .config(function($mdThemingProvider) {
     $mdThemingProvider.theme('default')
