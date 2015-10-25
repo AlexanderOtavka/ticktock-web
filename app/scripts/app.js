@@ -1,25 +1,44 @@
+'use strict';
+
 /**
- * @license Copyright (c) 2015 Drake Developers Club. All rights reserved.
- */
-/**
- * app.js
+ * @ngdoc overview
+ * @name ticktockWebApp
+ * @description
+ * # ticktockWebApp
  *
- * Control the main dom-bind template.
- *
- * @author Alexander Otavka (zotavka@gmail.com)
+ * Main module of the application.
  */
-
-
-(function() {
-  'use strict';
-
-  var app = document.querySelector('#app');
-
-  app.addEventListener('dom-change', function() {
-    console.log('app dom loaded');
+angular
+  .module('ticktockWebApp', [
+    'ngAnimate',
+    'ngAria',
+    'ngCookies',
+    'ngMessages',
+    'ngResource',
+    'ngRoute',
+    'ngSanitize',
+    'ngMaterial',
+    'ngTouch',
+    'angular-svg-round-progress'
+  ])
+  .config(function($mdThemingProvider) {
+    $mdThemingProvider.theme('default')
+      .primaryPalette('pink')
+      .accentPalette('orange');
+  })
+  .config(function ($routeProvider) {
+    $routeProvider
+      .when('/', {
+        templateUrl: 'views/main.html',
+        controller: 'MainCtrl',
+        controllerAs: 'main'
+      })
+      .when('/about', {
+        templateUrl: 'views/about.html',
+        controller: 'AboutCtrl',
+        controllerAs: 'about'
+      })
+      .otherwise({
+        redirectTo: '/'
+      });
   });
-
-  window.addEventListener('WebComponentsReady', function() {
-    console.log('web components are ready');
-  });
-})();
