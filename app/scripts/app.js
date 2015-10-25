@@ -19,7 +19,7 @@ angular
     'ngSanitize',
     'ngMaterial',
     'ngTouch',
-    'ngProgress'
+    'angular-svg-round-progress'
   ])
   .config(function($mdThemingProvider) {
     $mdThemingProvider.theme('default')

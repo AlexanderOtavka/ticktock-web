@@ -7,9 +7,16 @@
  * # MainCtrl
  * Controller of the ticktockWebApp
  */
+
 angular.module('ticktockWebApp')
-  .controller('MainCtrl', ['$scope', function ($scope) {
+  .controller('MainCtrl', ['$scope', '$interval', function ($scope, $interval) {
+    $interval(function(){
+      var date = new Date();
+      var seconds = date.getSeconds();
 
+      $scope.seconds = seconds;
 
-    $scope.things=[0,1,2,3,4,5,6,7];
+    }, 1000);
+      $scope.things=[0,1,2,3,4,5,6,7];
   }]);
+
