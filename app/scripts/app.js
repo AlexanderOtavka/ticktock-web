@@ -19,7 +19,8 @@ angular
     'ngSanitize',
     'ngMaterial',
     'ngTouch',
-    'angular-svg-round-progress'
+    'angular-svg-round-progress',
+    'ui.bootstrap'
   ])
   .config(function($mdThemingProvider) {
     $mdThemingProvider.theme('default')

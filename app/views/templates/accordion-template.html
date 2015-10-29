@@ -1,0 +1,21 @@
+<div>
+  <md-toolbar class="md-whiteframe-3dp" ng-click="toggleOpen()">
+  <div class="md-toolbar-tools">
+    <md-icon> announcement </md-icon>
+    <h4 class="panel-title">
+      <a href tabindex="0" class="accordion-toggle" uib-accordion-transclude="heading"><span
+        ng-class="{'text-muted': isDisabled}">{{heading}}</span></a>
+    </h4>
+    <span flex></span>
+    <md-button class="md-icon-button" aria-label="Favorite">
+      <md-icon>star_rate</md-icon>
+    </md-button>
+    <md-button class="md-icon-button" aria-label="More">
+      <md-icon> more_vert </md-icon>
+    </md-button>
+  </div>
+</md-toolbar>
+  <div class="panel-collapse collapse" uib-collapse="!isOpen">
+    <div class="panel-body" style="text-align: right" ng-transclude></div>
+  </div>
+</div>

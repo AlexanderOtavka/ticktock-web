@@ -1,21 +1,5 @@
-<md-content>
-  <div id="container"></div>
-  <div ng-repeat="thing in things">
-    <md-toolbar class="md-whiteframe-3dp">
-      <div class="md-toolbar-tools">
-        <md-icon> announcement </md-icon>
-        <h2>
-          <span style="padding-left: 5px;">{{ thing + 1 }}</span>
-        </h2>
-        <span flex></span>
-        <md-button class="md-icon-button" aria-label="Favorite">
-          <md-icon>star_rate</md-icon>
-        </md-button>
-        <md-button class="md-icon-button" aria-label="More">
-          <md-icon> more_vert </md-icon>
-        </md-button>
-      </div>
-    </md-toolbar>
+<uib-accordion  close-others="true">
+  <uib-accordion-group ng-repeat="thing in things" heading="{{ thing }}" template-url="views\templates\accordion-template.html">
     {{ seconds }}
     <div
       round-progress
@@ -31,5 +15,7 @@
       responsive="false"
       duration="400"
       animation="easeInOutQuart"></div>
-  </div>
-</md-content>
+    </div>
+  </uib-accordion-group>
+</uib-accordion>
+
