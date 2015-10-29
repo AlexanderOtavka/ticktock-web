@@ -1,5 +1,6 @@
 <uib-accordion  close-others="true">
   <uib-accordion-group ng-repeat="thing in things" heading="{{ thing }}" template-url="views\templates\accordion-template.html">
+    <!-- Content injected inside each element -->
     {{ seconds }}
     <div
       round-progress
