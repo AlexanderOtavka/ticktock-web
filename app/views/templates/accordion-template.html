@@ -1,5 +1,5 @@
-<div style="-webkit-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none; "><!-- Contains entire template -->
-  <md-toolbar class="md-whiteframe-3dp" ng-click="toggleOpen()"><!-- Begins toolbar -->
+<div><!-- Contains entire template -->
+  <md-toolbar class="md-whiteframe-3dp" ng-click="thing.isOpen = !thing.isOpen"><!-- Begins toolbar -->
   <div class="md-toolbar-tools">
     <!-- Adds item icon -->
     <md-icon> announcement </md-icon>
@@ -18,8 +18,7 @@
   </div>
 </md-toolbar><!-- Ends toolbar -->
   <!-- Injects content -->
-  <div class="panel-collapse collapse" uib-collapse="!isOpen">
+  <div class="panel-collapse collapse" uib-collapse="!thing.isOpen">
     <div class="panel-body" ng-transclude></div>
   </div>
-
 </div><!-- Ends template -->

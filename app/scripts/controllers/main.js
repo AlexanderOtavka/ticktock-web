@@ -17,6 +17,29 @@ angular.module('ticktockWebApp')
       $scope.seconds = seconds;
 
     }, 1000);
-      $scope.things=[0,1,2,3,4,5,6,7];
+
+    $scope.things=[
+      {
+        name: "One",
+        isOpen: false
+      } ,
+      {
+        name: "Two",
+        isOpen: false
+      } ,
+      {
+        name: "Three",
+        isOpen: false
+      } ,
+      {
+        name: "Four",
+        isOpen: false
+      } ,
+      {
+        name: "Five",
+        isOpen: false
+      }
+    ];
+
   }]);
 

@@ -20,7 +20,9 @@ angular
     'ngMaterial',
     'ngTouch',
     'angular-svg-round-progress',
-    'ui.bootstrap'
+    'ui.bootstrap',
+    'angular-click-outside'
+
   ])
   .config(function($mdThemingProvider) {
     $mdThemingProvider.theme('default')
