@@ -20,24 +20,19 @@ angular.module('ticktockWebApp')
 
     $scope.things=[
       {
-        name: "One",
-        isOpen: false
+        name: "One"
       } ,
       {
-        name: "Two",
-        isOpen: false
+        name: "Two"
       } ,
       {
-        name: "Three",
-        isOpen: false
+        name: "Three"
       } ,
       {
-        name: "Four",
-        isOpen: false
+        name: "Four"
       } ,
       {
-        name: "Five",
-        isOpen: false
+        name: "Five"
       }
     ];
 
