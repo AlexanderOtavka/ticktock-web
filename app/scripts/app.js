@@ -20,6 +20,7 @@ angular
     'ngMaterial',
     'ngTouch',
     'angular-svg-round-progress',
+    'snap',
     'ui.bootstrap'
 
   ])
