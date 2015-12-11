@@ -29,6 +29,11 @@ angular
       .primaryPalette('pink')
       .accentPalette('orange');
   })
+  .config(function(snapRemoteProvider){
+    snapRemoteProvider.globalOptions = {
+      disable: 'right'
+    };
+  })
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
@@ -44,4 +49,11 @@ angular
       .otherwise({
         redirectTo: '/'
       });
-  });
+  })
+  .controller('TopCtrl', ['$scope',function($scope){
+    $scope.listItems=[
+      {
+        name:'All'
+      }
+    ];
+  }]);

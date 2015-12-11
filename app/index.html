@@ -23,21 +23,30 @@
     <!--Custom Stylesheets-->
     <link rel="stylesheet" href="styles/snap.css">
   </head>
-  <body ng-app="ticktockWebApp">
+  <body ng-app="ticktockWebApp" ng-controller="TopCtrl">
     <!--[if lte IE 8]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
     <!-- Add your site or application content here -->
+    <div snap-drawer>
+      <md-list>
+        <md-list-item ng-repeat="item in  listItems">
+          <md-icon>date_range</md-icon>
+          <h4>{{ item.name }}</h4>
+          <md-divider ></md-divider>
+        </md-list-item>
+      </md-list>
+    </div>
+    <div snap-content class="snap-content" >
     <div class="header">
       <md-toolbar>
         <div class="md-toolbar-tools">
-          <md-button class="md-icon-button" aria-label="Settings">
+          <md-button snap-toggle="left" class="md-icon-button" aria-label="Settings">
             <md-icon> menu </md-icon>
           </md-button>
           <h2>
             <span>TickTock</span>
-
           </h2>
           <span flex></span>
           <md-button class="md-icon-button" aria-label="Favorite">
@@ -50,16 +59,13 @@
       </md-toolbar>
     </div>
 
-
-
     <div class="container">
-
-    <div ng-view=""></div>
+      <div ng-view=""></div>
     </div>
 
     <div class="footer">
     </div>
-
+  </div>
 
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
      <script>
@@ -101,7 +107,6 @@
     <script src="https://gitcdn.xyz/repo/angular/bower-material/master/angular-material.js"></script>
 
     <!--Custom JS-->
-    <script src="scripts/snap.min.js"></script>
 
   </body>
 </html>
