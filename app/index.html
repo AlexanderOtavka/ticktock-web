@@ -31,10 +31,11 @@
     <!-- Add your site or application content here -->
     <div snap-drawer>
       <md-list>
-        <md-list-item ng-repeat="item in  listItems">
-          <md-icon>date_range</md-icon>
-          <h4>{{ item.name }}</h4>
-          <md-divider ></md-divider>
+        <md-list-item ng-repeat="item in  listItems" layout="row" layout-align="center center">
+          <a style="width: 100%;">
+            <md-icon style="background-color:blue;">date_range</md-icon>
+            <h4 style="background-color:green;" >{{ item.name }}</h4>
+          </a>
         </md-list-item>
       </md-list>
     </div>

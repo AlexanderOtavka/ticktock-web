@@ -54,6 +54,13 @@ angular
     $scope.listItems=[
       {
         name:'All'
+      },
+      {
+        name:'Holidays'
+      },
+      {
+        name:'Work'
       }
+
     ];
   }]);
