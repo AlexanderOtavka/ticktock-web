@@ -24,8 +24,19 @@ body {
   padding-left: 15px;
   padding-right: 15px;
 }
-
-.snap-content{
+snap-drawer{
+  button{
+    width: 100%;
+    a, a:link, a:hover, a:visited, a:active{
+      text-decoration: none;
+      color: #000;
+      span{
+        font-size: 18px;
+      }
+    }
+  }
+}
+snap-content{
   background-color: white;
 }
 

@@ -29,44 +29,58 @@
     <![endif]-->
 
     <!-- Add your site or application content here -->
-    <div snap-drawer>
-      <md-list>
-        <md-list-item ng-repeat="item in  listItems" layout="row" layout-align="center center">
-          <a style="width: 100%;">
-            <md-icon style="background-color:blue;">date_range</md-icon>
-            <h4 style="background-color:green;" >{{ item.name }}</h4>
-          </a>
-        </md-list-item>
-      </md-list>
-    </div>
-    <div snap-content class="snap-content" >
-    <div class="header">
-      <md-toolbar>
-        <div class="md-toolbar-tools">
-          <md-button snap-toggle="left" class="md-icon-button" aria-label="Settings">
-            <md-icon> menu </md-icon>
+    <snap-drawer layout="column" layout-align="space-between">
+      <md-menu>
+        <md-menu-item ng-repeat="item in topMenuItems">
+          <md-button>
+            <a href="{{ item.link }}">
+                <md-icon>date_range</md-icon>
+                <span>{{ item.name }}</span>
+            </a>
           </md-button>
-          <h2>
-            <span>TickTock</span>
-          </h2>
-          <span flex></span>
-          <md-button class="md-icon-button" aria-label="Favorite">
-            <md-icon>search</md-icon>
-          </md-button>
-          <md-button class="md-icon-button" aria-label="More">
-            <md-icon> more_vert </md-icon>
-          </md-button>
-        </div>
-      </md-toolbar>
-    </div>
+        </md-menu-item>
+      </md-menu>
 
-    <div class="container">
-      <div ng-view=""></div>
-    </div>
+      <md-menu>
+        <md-menu-item ng-repeat="item in bottomMenuItems">
+          <md-button>
+            <a href="{{ item.link }}">
+                <md-icon>date_range</md-icon>
+                <span>{{ item.name }}</span>
+            </a>
+          </md-button>
+        </md-menu-item>
+      </md-menu>
+    </snap-drawer>
 
-    <div class="footer">
-    </div>
-  </div>
+    <snap-content>
+      <div class="header">
+        <md-toolbar>
+          <div class="md-toolbar-tools">
+            <md-button snap-toggle="left" class="md-icon-button" aria-label="Settings">
+              <md-icon> menu </md-icon>
+            </md-button>
+            <h2>
+              <span>TickTock</span>
+            </h2>
+            <span flex></span>
+            <md-button class="md-icon-button" aria-label="Favorite">
+              <md-icon>search</md-icon>
+            </md-button>
+            <md-button class="md-icon-button" aria-label="More">
+              <md-icon> more_vert </md-icon>
+            </md-button>
+          </div>
+        </md-toolbar>
+      </div>
+
+      <div class="container">
+        <div ng-view=""></div>
+      </div>
+
+      <div class="footer">
+      </div>
+    </snap-content>
 
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
      <script>

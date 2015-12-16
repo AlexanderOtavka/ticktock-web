@@ -51,16 +51,24 @@ angular
       });
   })
   .controller('TopCtrl', ['$scope',function($scope){
-    $scope.listItems=[
+    $scope.topMenuItems=[
       {
-        name:'All'
+        name:'All',
+        link: '#/'
       },
       {
-        name:'Holidays'
+        name:'Holidays',
+        link: '#/'
       },
       {
-        name:'Work'
+        name:'Work',
+        link: '#/'
       }
-
+    ];
+    $scope.bottomMenuItems=[
+      {
+        name: 'Settings',
+        link: '#/'
+      }
     ];
   }]);
