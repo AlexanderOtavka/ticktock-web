@@ -1,3 +1,13 @@
+Resp: {{ resp }}
+<br/>
+<!-- client secret: 13r6E2CO24zpsQkcK5XK7lqI -->
+<oauth
+  site="https://accounts.google.com/o/oauth2/v2/auth"
+  client-id="197838620813-rndpqrn9qbbpvcs1diusim9hpke61qn4.apps.googleusercontent.com"
+  redirect-uri="https://accounts.google.com/o/oauth2/v2/auth"
+  profile-uri="PROFILE_URI_HERE"
+  scope="SCOPE_HERE">
+</oauth>
 <uib-accordion close-others="true">
   <uib-accordion-group ng-repeat="thing in things" class="item" heading="{{ thing.name }}" template-url="views\templates\accordion-template.html">
     <!-- Content injected inside each element -->

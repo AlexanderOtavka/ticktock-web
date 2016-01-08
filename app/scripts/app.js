@@ -21,6 +21,7 @@ angular
     'ngTouch',
     'angular-svg-round-progress',
     'snap',
+    'oauth',
     'ui.bootstrap'
 
   ])
@@ -53,22 +54,40 @@ angular
   .controller('TopCtrl', ['$scope',function($scope){
     $scope.topMenuItems=[
       {
-        name:'All',
-        link: '#/'
+        name:'All Calendars',
+        link: '#/',
+        icon: 'date_range',
+        color: 'green'
       },
       {
         name:'Holidays',
-        link: '#/'
+        link: '#/',
+        icon: 'ac_unit',
+        color: 'purple'
       },
       {
         name:'Work',
-        link: '#/'
+        link: '#/',
+        icon: 'business_center',
+        color: '#f1bc41'
+      },
+      {
+        name:'Hidden',
+        link: '#/',
+        icon: 'date_range',
+        color: 'grey'
       }
     ];
     $scope.bottomMenuItems=[
       {
         name: 'Settings',
-        link: '#/'
+        link: '#/',
+        icon: 'settings'
+      },
+      {
+        name: 'Help & Feedback',
+        link: '#/',
+        icon: 'help'
       }
     ];
   }]);

@@ -30,6 +30,15 @@ snap-drawer{
     a, a:link, a:hover, a:visited, a:active{
       text-decoration: none;
       color: #000;
+      md-icon{
+        -webkit-border-radius: 50%;
+        -moz-border-radius: 50%;
+        border-radius: 50%;
+        height: 1.2em;
+        width: 1.2em;
+        margin-left: auto;
+        margin-right: auto;
+      }
       span{
         font-size: 18px;
       }

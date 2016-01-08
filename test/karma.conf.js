@@ -37,6 +37,9 @@ module.exports = function(config) {
       'bower_components/angular-bootstrap/ui-bootstrap-tpls.js',
       'bower_components/snapjs/snap.js',
       'bower_components/angular-snap/angular-snap.js',
+      'bower_components/ngstorage/ngStorage.js',
+      'bower_components/jsrsasign/jsrsasign-latest-all-min.js',
+      'bower_components/oauth-ng/dist/oauth-ng.js',
       'bower_components/angular-mocks/angular-mocks.js',
       // endbower
       "app/scripts/**/*.js",

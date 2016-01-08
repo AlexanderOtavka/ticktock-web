@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
           rel="stylesheet">
 
-    <!--Custom Stylesheets-->
+    <!-- Custom Stylesheets -->
     <link rel="stylesheet" href="styles/snap.css">
   </head>
   <body ng-app="ticktockWebApp" ng-controller="TopCtrl">
@@ -34,7 +34,7 @@
         <md-menu-item ng-repeat="item in topMenuItems">
           <md-button>
             <a href="{{ item.link }}">
-                <md-icon>date_range</md-icon>
+                <md-icon style="background-color: {{ item.color }}; color: white;">{{ item.icon }}</md-icon>
                 <span>{{ item.name }}</span>
             </a>
           </md-button>
@@ -45,7 +45,7 @@
         <md-menu-item ng-repeat="item in bottomMenuItems">
           <md-button>
             <a href="{{ item.link }}">
-                <md-icon>date_range</md-icon>
+                <md-icon>{{ item.icon }}</md-icon>
                 <span>{{ item.name }}</span>
             </a>
           </md-button>
@@ -110,6 +110,9 @@
     <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
     <script src="bower_components/snapjs/snap.js"></script>
     <script src="bower_components/angular-snap/angular-snap.js"></script>
+    <script src="bower_components/ngstorage/ngStorage.js"></script>
+    <script src="bower_components/jsrsasign/jsrsasign-latest-all-min.js"></script>
+    <script src="bower_components/oauth-ng/dist/oauth-ng.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -121,7 +124,7 @@
     <!-- Angular Material Javascript now available via Google CDN; version 0.11.2 used here -->
     <script src="https://gitcdn.xyz/repo/angular/bower-material/master/angular-material.js"></script>
 
-    <!--Custom JS-->
+    <!-- Custom JS -->
 
   </body>
 </html>

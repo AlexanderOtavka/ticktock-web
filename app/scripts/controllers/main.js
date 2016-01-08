@@ -9,13 +9,20 @@
  */
 
 angular.module('ticktockWebApp')
-  .controller('MainCtrl', ['$scope', '$interval', function ($scope, $interval) {
+  .controller('MainCtrl', ['$scope', '$interval', '$http', function ($scope, $interval, $http) {
+    $scope.resp = 'no resp';
+
+    $http({
+      method:'GET',
+      url:'http://localhost:14081/_ah/api/ticktock/v1/calendars'
+    }).then(function callback(resp){
+      $scope.resp = resp.status;
+    });
+
     $interval(function(){
       var date = new Date();
       var seconds = date.getSeconds();
-
       $scope.seconds = seconds;
-
     }, 1000);
 
     $scope.things=[
