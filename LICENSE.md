@@ -1,14 +1,6 @@
 # License
 
-Everything in this repo is BSD style license unless otherwise specified, 
-excluding the following files and directory.
-
-* api/
-* app.yaml
-* appengine_config.py
-* cron.yaml
-* README.md
-* requirements.txt
+Everything in this repo is BSD style license unless otherwise specified.
 
 Copyright (c) 2015 The Polymer Authors. All rights reserved.
 
