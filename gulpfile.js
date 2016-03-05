@@ -304,6 +304,11 @@ gulp.task('default', ['clean'], function (cb) {
     cb);
 });
 
+gulp.task('deploy', ['default'], function () {
+  return gulp.src('dist/**/*')
+    .pipe($.ghPages({ branch: 'dist' }));
+});
+
 // Load tasks for web-component-tester
 // Adds tasks for `gulp test:local` and `gulp test:remote`
 require('web-component-tester').gulp.init(gulp);

@@ -10,3 +10,4 @@ bower_components
 # Web app build output
 dist
 .tmp
+.publish
