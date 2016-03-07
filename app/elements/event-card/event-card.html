@@ -166,12 +166,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     elevation="[[_getElevation(opened)]]"
     on-tap="toggleExpand"
     animated>
+
     <div id="toolbar">
       <calendar-icon
         icon="[[_getIcon(calendarHidden)]]"
         color="[[color]]"
         faded="[[_getIconFaded(eventHidden, calendarHidden)]]">
       </calendar-icon>
+
       <div id="nameWrapper">
         <div id="name">
           [[name]] [[_getNameSuffixText(durationFromStart)]]
@@ -215,6 +217,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         stroke-width="15"
         value="[[duration]]"
         max="[[_getMajorDurationMax(duration)]]">
+
         <div id="bubbleContent">
           <div id="majorDurationSegment">
             [[_getMajorDurationText(duration)]]
@@ -223,6 +226,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <template
               is="dom-repeat"
               items="[[_getMinorDurationSegments(duration)]]">
+
               <span>[[item]]</span>
             </template>
           </div>

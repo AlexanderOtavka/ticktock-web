@@ -88,10 +88,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           selectable="a"
           attr-for-selected="data-route"
           selected="[[route]]">
+
           <div
             id="userBar"
             class$="[[getSignedOutClass(userInfo.signedOut)]]"
             on-tap="showSigninPopup">
+
             <iron-image src="[[userInfo.picture]]" sizing="cover"></iron-image>
             <span id="userName">[[userInfo.name]]</span>
           </div>
@@ -101,10 +103,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             items="{{calendars}}"
             filter="{{getCalendarFilter(showHiddenCalendars)}}"
             observe="hidden calendarLoading calendarErrored">
+
             <a
               href="/calendars/[[getUrlEncoded(item.calendarId)]]"
               on-click="closeDrawer"
               data-route$="eventsList:[[item.calendarId]]">
+
               <selectable-calendar
                 color="[[item.color]]"
                 icon="[[item.icon]]"
@@ -121,6 +125,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             id="showHiddenCalendars"
             on-tap="toggleShowHiddenCalendars"
             hidden="[[getHideHiddenCalendarToggle(hasHiddenCalendars, selectedCalendar.hidden)]]">
+
             [[getHiddenCalendarToggleText(showHiddenCalendars)]]
           </div>
         </paper-menu>
@@ -129,6 +134,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           id="feedback"
           target="_blank"
           href="https://docs.google.com/forms/d/1AUPTrNIat7yyUahAsDZzd3uaQqHRKBPXT78llUyKecQ/viewform">
+
           <paper-icon-item>
             <iron-icon icon="icons:feedback" item-icon></iron-icon>
             <span>Feedback</span>
@@ -188,6 +194,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 id="signInButtonWrapper"
                 hidden="[[!userInfo.signedOut]]"
                 class="centered-content">
+
                 <paper-button
                   id="signInButton"
                   on-click="showSigninPopup">
@@ -208,6 +215,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 id="calNotLoaded"
                 class="centered-content"
                 hidden="[[!getCalendarErrored(userInfo.signedOut, selectedCalendar.calendarErrored, selectedCalendar.eventsErrored)]]">
+
                 Oops... this calendar could not be loaded :(
                 <br>
                 <paper-button on-tap="refreshThisCalendar">
@@ -218,6 +226,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <div
                 class="centered-content"
                 hidden="[[!getCalendarEmpty(userInfo.signedOut, selectedCalendar.calendarErrored, selectedCalendar.eventsErrored, selectedCalendar.eventsLoading, selectedCalendar.nextPageToken, selectedCalendar.events)]]">
+
                 Looks like there's nothing here.
               </div>
 
@@ -225,6 +234,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 id="spinnerWrapper"
                 class="centered-content"
                 hidden="[[!getCalendarLoading(userInfo.signedOut, selectedCalendar.calendarErrored, selectedCalendar.eventsErrored, selectedCalendar.eventsLoading, selectedCalendar.nextPageToken)]]">
+
                 <paper-spinner active></paper-spinner>
               </div>
             </section>
@@ -281,10 +291,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       clients-claim
       skip-waiting
       on-service-worker-installed="showInstalledToast">
+
       <platinum-sw-cache
         default-cache-strategy="fastest"
         cache-config-file="cache-config.json">
       </platinum-sw-cache>
+
       <platinum-sw-fetch
         path="/_ah/api/(.*)"
         handler="networkFirst">

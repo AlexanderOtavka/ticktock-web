@@ -12,6 +12,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <script>
 
 window.addEventListener('WebComponentsReady', function () {
+  'use strict';
 
   // We use Page.js for routing. This is a Micro
   // client-side router inspired by the Express router
@@ -41,7 +42,7 @@ window.addEventListener('WebComponentsReady', function () {
 
   // add #! before urls
   page({
-    hashbang: true
+    hashbang: true,
   });
 
 });
