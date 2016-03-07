@@ -440,6 +440,10 @@ Polymer({
       }
     }).bind(this));
 
+    if (eventsLoading) {
+      eventsErrored = false;
+    }
+
     this.set(['calendars', allCalendarIndex, 'eventsLoading'], eventsLoading);
     this.set(['calendars', allCalendarIndex, 'eventsErrored'], eventsErrored);
   },
