@@ -94,7 +94,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             class$="[[getSignedOutClass(userInfo.signedOut)]]"
             on-tap="showSigninPopup">
 
-            <iron-image src="[[userInfo.picture]]" sizing="cover"></iron-image>
+            <div
+              id="userImage"
+              style$="background-image: url('[[userInfo.picture]]')">
+            </div>
             <span id="userName">[[userInfo.name]]</span>
           </div>
 
