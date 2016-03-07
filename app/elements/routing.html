@@ -18,32 +18,33 @@ window.addEventListener('WebComponentsReady', function () {
   // client-side router inspired by the Express router
   // More info: https://visionmedia.github.io/page.js/
 
-  // Middleware
-  function scrollToTop(ctx, next) {
-    app.scrollPageToTop();
-    next();
-  }
-
-  var eventsList = function (selectedCalendar) {
-    var PAGE_NAME = 'eventsList';
-    app.page = PAGE_NAME;
-    app.route = PAGE_NAME + ':' + selectedCalendar;
-    app.selectCalendar(app.getUrlDecoded(selectedCalendar));
-  };
-
   // Routes
   page('/', scrollToTop, function () {
-    eventsList('*');
+    eventList('*');
   });
 
   page('/calendars/:calendarId', scrollToTop, function (data) {
-    eventsList(data.params.calendarId);
+    eventList(data.params.calendarId);
   });
 
   // add #! before urls
   page({
     hashbang: true,
   });
+
+  // Middleware
+  function scrollToTop(ctx, next) {
+    app.scrollPageToTop();
+    next();
+  }
+
+  // Utility functions
+  function eventList(selectedCalendar) {
+    var PAGE_NAME = 'eventList';
+    app.page = PAGE_NAME;
+    app.route = PAGE_NAME + ':' + selectedCalendar;
+    app.selectCalendar(app.getUrlDecoded(selectedCalendar));
+  }
 
 });
 

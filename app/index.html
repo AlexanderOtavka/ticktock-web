@@ -110,7 +110,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <a
               href="/calendars/[[getUrlEncoded(item.calendarId)]]"
               on-click="closeDrawer"
-              data-route$="eventsList:[[item.calendarId]]">
+              data-route$="eventList:[[item.calendarId]]">
 
               <selectable-calendar
                 color="[[item.color]]"
@@ -192,7 +192,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="content">
           <iron-pages attr-for-selected="page-name" selected="[[page]]">
 
-            <section page-name="eventsList">
+            <section page-name="eventList">
               <div
                 id="signInButtonWrapper"
                 hidden="[[!userInfo.signedOut]]"
