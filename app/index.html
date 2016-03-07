@@ -54,6 +54,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script src="bower_components/es5-shim/es5-shim.js"></script>
   <script src="scripts/polyfills/array-find-polyfill.js"></script>
   <script src="scripts/polyfills/location-origin-polyfill.js"></script>
+  <script src="scripts/polyfills/raf-polyfill.js"></script>
   <script src="bower_components/es6-promise/promise.js"></script>
   <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
   <!-- endbuild -->
@@ -211,7 +212,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 show-hidden-events="[[showHiddenEvents]]"
                 show-hidden-calendars="[[showHiddenCalendars]]"
                 hidden="[[userInfo.signedOut]]"
-                on-event-modified="onEventChanged">
+                on-event-modified="onEventModified"
+                on-event-finish="onEventFinish">
               </event-list>
 
               <div

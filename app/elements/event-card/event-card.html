@@ -145,7 +145,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   }
 
   #majorDurationSegment {
-    font-size: 3rem;
+    font-size: 2.5rem;
   }
 
   #minorDurationSegmentsWrapper {
@@ -176,10 +176,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <div id="nameWrapper">
         <div id="name">
-          [[name]] [[_getNameSuffixText(durationFromStart)]]
+          [[name]] [[_getNameSuffixText(_isStartDuration)]]
         </div>
         <div id="miniTimer" hidden="[[opened]]">
-          [[_getMajorDurationText(duration)]]
+          [[_getMajorDurationText(_duration)]]
         </div>
       </div>
 
@@ -215,17 +215,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <!-- Pink should extend to the left and grow smaller over time. -->
       <progress-bubble
         stroke-width="15"
-        value="[[duration]]"
-        max="[[_getMajorDurationMax(duration)]]">
+        value="[[_duration]]"
+        max="[[_getMajorDurationMax(_duration)]]">
 
         <div id="bubbleContent">
           <div id="majorDurationSegment">
-            [[_getMajorDurationText(duration)]]
+            [[_getMajorDurationText(_duration)]]
           </div>
           <div id="minorDurationSegmentsWrapper">
             <template
               is="dom-repeat"
-              items="[[_getMinorDurationSegments(duration)]]">
+              items="[[_getMinorDurationSegments(_duration)]]">
 
               <span>[[item]]</span>
             </template>
@@ -241,6 +241,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   'use strict';
 
   var COLLAPSE_CONTENT_HEIGHT = 330;
+  var MAX_TIMEOUT_DELAY = Math.pow(2, 31) - 1;
 
   Polymer({
     is: 'event-card',
@@ -252,17 +253,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     properties: {
       eventId: String,
       calendarId: String,
+      recurrenceId: String,
       name: String,
-      color: String,
+      startDateMs: Number,
+      endDateMs: Number,
+      first: {
+        type: Boolean,
+        reflectToAttribute: true,
+      },
       opened: {
         type: Boolean,
         reflectToAttribute: true,
-        notify: true,
-      },
-      duration: Number,
-      durationFromStart: {
-        type: Boolean,
-        value: true,
       },
       starred: {
         type: Boolean,
@@ -275,12 +276,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         notify: true,
       },
       calendarHidden: Boolean,
+      color: String,
       link: String,
-      recurrenceId: String,
-      first: {
-        type: Boolean,
-        reflectToAttribute: true,
-      },
       animationConfig: {
         value: function () {
           var getAnimationConfig = (function (timing) {
@@ -315,12 +312,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           };
         },
       },
+      _duration: {
+        type: Number,
+        value: 0,
+      },
+      _isStartDuration: {
+        type: Boolean,
+        value: true,
+      },
     },
 
     observers: [
       '_starChanged(starred)',
       '_hideChanged(eventHidden)',
+      '_resetUpdater(startDateMs, endDateMs, opened)',
     ],
+
+    ready: function () {
+      this._durationUpdaterId = -1;
+
+      // True for setTimeout, false for requestAnimationFrame.
+      this._durationUpdaterIsTimeout = null;
+    },
 
     //
     // Actions
@@ -344,6 +357,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     toggleHide: function (event) {
       this.eventHidden = !this.eventHidden;
       event.stopPropagation();
+    },
+
+    _updateDuration: function (startDateMs, endDateMs, now) {
+      var durationSeconds = Math.floor((startDateMs - now) / 1000);
+
+      if (durationSeconds <= 0) {
+        durationSeconds = Math.floor((endDateMs - now) / 1000);
+
+        if (durationSeconds < 0) {
+          this.fire('event-finish', {
+            calendarId: this.calendarId,
+            eventId: this.eventId,
+          });
+        } else {
+          this._isStartDuration = false;
+        }
+      } else {
+        this._isStartDuration = true;
+      }
+
+      this._duration = durationSeconds;
     },
 
     //
@@ -373,8 +407,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Text Getters
 
-    _getNameSuffixText: function (durationFromStart) {
-      return durationFromStart ? '' : 'Ends';
+    _getNameSuffixText: function (isStartDuration) {
+      return isStartDuration ? '' : 'Ends';
     },
 
     _getMajorDurationText: function (duration) {
@@ -415,6 +449,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
+    _resetUpdater: function (startDateMs, endDateMs, opened) {
+      if (this._durationUpdaterIsTimeout) {
+        clearTimeout(this._durationUpdaterId);
+      } else {
+        cancelAnimationFrame(this._durationUpdaterId);
+      }
+
+      var updateDuration;
+      if (opened || needsAnimationFrame(this._duration)) {
+        updateDuration = (function () {
+          this._updateDuration(startDateMs, endDateMs, Date.now());
+          this._durationUpdaterId = requestAnimationFrame(updateDuration);
+        }).bind(this);
+
+        this._durationUpdaterId = requestAnimationFrame(updateDuration);
+        this._durationUpdaterIsTimeout = false;
+      } else {
+        updateDuration = (function () {
+          this._updateDuration(startDateMs, endDateMs, Date.now());
+          var nextUpdate = getNextUpdate(this._duration);
+          if (nextUpdate || !needsAnimationFrame(this._duration)) {
+            this._durationUpdaterId = setTimeout(updateDuration,
+                                                 nextUpdate || 200);
+          } else {
+            this._resetUpdater(startDateMs, endDateMs, opened);
+          }
+        }).bind(this);
+
+        updateDuration();
+        this._durationUpdaterIsTimeout = true;
+      }
+    },
+
     //
     // Event Handlers
     //
@@ -431,7 +498,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   var S_IN_MONTH = S_IN_DAY * 30;
   var S_IN_YEAR = S_IN_DAY * 365;
 
-  var CONVERSION_FACTORS = [
+  var conversionFactors = [
     S_IN_YEAR,
     S_IN_MONTH,
     S_IN_DAY,
@@ -449,19 +516,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   units[S_IN_MONTH] = 'Month';
   units[S_IN_YEAR] = 'Year';
 
+  /**
+   * Calculate how long until the major duration segment will need updating.
+   *
+   * @param {Number} seconds - duration in seconds.
+   * @return {Number} - milisecond time until the next update.
+   */
+  function getNextUpdate(seconds) {
+    var conversionFactor = conversionFactors.find(function (factor) {
+      return seconds > factor;
+    }) || 1;
+
+    var nextUpdate = (seconds % conversionFactor) * 1000;
+    return Math.min(nextUpdate, MAX_TIMEOUT_DELAY);
+  }
+
+  function needsAnimationFrame(seconds) {
+    return seconds && seconds <= S_IN_MINUTE;
+  }
+
   function getDurationSegments(seconds, multiple) {
     multiple = (multiple === undefined) ? true : multiple;
     var segments = [];
     var number;
-    for (var i = 0; i < CONVERSION_FACTORS.length; i++) {
-      if (number) {
-        seconds = seconds % (CONVERSION_FACTORS[i - 1] ||
-                             MAX_CONVERSION_FACTOR);
-      }
+    for (var i = 0, len = conversionFactors.length; i < len; i++) {
+      number = Math.floor(seconds / conversionFactors[i]);
 
-      number = Math.floor(seconds / CONVERSION_FACTORS[i]);
-      if (number || i === CONVERSION_FACTORS.length - 1) {
-        var segment = String(number) + ' ' + units[CONVERSION_FACTORS[i]];
+      if (number || i === len - 1) {
+        var segment = String(number) + ' ' + units[conversionFactors[i]];
         if (number !== 1) {
           segment += 's';
         }
@@ -472,6 +554,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           segments.push(segment);
         }
       }
+
+      seconds = seconds % conversionFactors[i];
     }
 
     return segments;
@@ -479,12 +563,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   function getMajorDurationMax(seconds) {
     var max;
-    for (var i = 0; i < CONVERSION_FACTORS.length; i++) {
-      var number = Math.floor(seconds / CONVERSION_FACTORS[i]);
+    for (var i = 0, len = conversionFactors.length; i < len; i++) {
+      var number = Math.floor(seconds / conversionFactors[i]);
       if (number) {
         return max || MAX_CONVERSION_FACTOR;
       } else {
-        max = CONVERSION_FACTORS[i];
+        max = conversionFactors[i];
       }
     }
 

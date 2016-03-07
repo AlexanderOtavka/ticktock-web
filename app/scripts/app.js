@@ -15,10 +15,6 @@ http://polymer.github.io/PATENTS.txt
 
 // Imports are loaded and elements have been registered.
 window.addEventListener('WebComponentsReady', function () {
-  setInterval(function () {
-    updateDurations(app.selectedCalendar);
-  }, 1000);
-
   app.$.apiManager.signIn(true);
 });
 
@@ -183,8 +179,13 @@ app.onSelectedCalendarHiddenChanged = function (event) {
   }
 };
 
-app.onEventChanged = function (event) {
+app.onEventModified = function (event) {
   app.$.apiManager.patchEvent(event.detail);
+};
+
+app.onEventFinish = function (event) {
+  app.$.apiManager.deleteEventById(event.detail.calendarId,
+                                   event.detail.eventId);
 };
 
 app.onCalendarHiddenToggled = function (event) {
@@ -217,42 +218,6 @@ function getCalendarStatus(signedOut, calendarErrored, eventsErrored,
   }
 
   return CalendarStatus.GOOD;
-}
-
-function updateDurations(calendar) {
-  // TODO: Optimize this.
-  var now = Date.now();
-
-  calendar.events.forEach(function (calendarEvent, i) {
-    var timeToStart = 0;
-    var timeToEnd = 0;
-    if (calendarEvent.startDate) {
-      var eventStart = Date.parse(calendarEvent.startDate);
-      timeToStart = Math.floor((eventStart - now) / 1000);
-    }
-
-    if (timeToStart <= 0) {
-      timeToStart = 0;
-      delete calendarEvent.startDate;
-
-      var eventEnd = Date.parse(calendarEvent.endDate);
-      timeToEnd = Math.floor((eventEnd - now) / 1000);
-
-      if (timeToEnd < 0) {
-        app.$.apiManager.deleteEventById(calendarEvent.calendarId,
-                                         calendarEvent.eventId);
-      }
-    }
-
-    calendarEvent.duration = timeToStart || timeToEnd;
-    calendarEvent.durationFromStart = Boolean(timeToStart);
-    if (calendar === app.selectedCalendar) {
-      app.notifyPath(['selectedCalendar', 'events', i, 'duration'],
-                     calendarEvent.duration);
-      app.notifyPath(['selectedCalendar', 'events', i, 'durationFromStart'],
-                     calendarEvent.durationFromStart);
-    }
-  });
 }
 
 })(app);

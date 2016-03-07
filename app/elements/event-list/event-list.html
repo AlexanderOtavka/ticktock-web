@@ -29,17 +29,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <event-card
       event-id="[[item.eventId]]"
       calendar-id="[[item.calendarId]]"
+      recurrence-id="[[item.recurrenceId]]"
       name="[[item.name]]"
-      color="[[item.color]]"
+      start-date-ms="[[_getDateInMs(item.startDate)]]"
+      end-date-ms="[[_getDateInMs(item.endDate)]]"
       first="[[!index]]"
       opened="[[_isOpened(index, openedIndex)]]"
-      duration="{{item.duration}}"
-      duration-from-start="[[item.durationFromStart]]"
       starred="{{item.starred}}"
       event-hidden="{{item.hidden}}"
-      calendar-hidden="{{item.calendarHidden}}"
+      calendar-hidden="[[item.calendarHidden]]"
+      color="[[item.color]]"
       link="[[item.link]]"
-      recurrence-id="[[item.recurrenceId]]"
       on-event-open-toggled="_onEventOpenToggled">
     </event-card>
   </template>
@@ -90,6 +90,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
     },
 
+    _getDateInMs: function (dateString) {
+      return Date.parse(dateString);
+    },
+
     _getFilter: function (showHiddenEvents, showHiddenCalendars) {
       if (!showHiddenEvents && !showHiddenCalendars) {
         return function (calendarEvent) {
@@ -110,7 +114,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     _onEventOpenToggled: function (event) {
       if (event.detail.opened) {
-        var old = Polymer.dom(this.root).querySelector('event-card[opened]');
+        var old = this.$$('event-card[opened]');
         if (old) {
           old.toggleExpand();
         }
