@@ -72,55 +72,6 @@
   </paper-icon-item>
 </template>
 
-<script>
-(function () {
-  'use strict';
-
-  Polymer({
-    is: 'selectable-calendar',
-
-    properties: {
-      color: String,
-      icon: {
-        type: String,
-        value: '',
-      },
-      name: String,
-      calendarId: String,
-      calendarHidden: {
-        type: Boolean,
-        notify: true,
-        value: false,
-      },
-      noMenu: Boolean,
-    },
-
-    attached: function () {
-      this.$$('dropdown-menu').onclick = function (event) {
-        event.stopPropagation();
-        return false;
-      };
-    },
-
-    toggleHide: function (event) {
-      this.calendarHidden = !this.calendarHidden;
-      event.stopPropagation();
-    },
-
-    _getIcon: function (icon, calendarHidden) {
-      return icon || (calendarHidden ? 'ticktock:calendar-hidden' :
-                                       'ticktock:calendar');
-    },
-
-    _getHideButtonText: function (calendarHidden) {
-      return calendarHidden ? 'Unhide' : 'Hide';
-    },
-
-    _getHiddenClass: function (calendarHidden) {
-      return calendarHidden ? 'hidden' : '';
-    },
-  });
-})();
-</script>
+<script src="selectable-calendar.js"></script>
 
 </dom-module>

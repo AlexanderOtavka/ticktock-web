@@ -1,48 +1,50 @@
 (function () {
 'use strict';
 
-var COLLAPSE_CONTENT_HEIGHT = 330;
-var MAX_TIMEOUT_DELAY = Math.pow(2, 31) - 1;
+const COLLAPSE_CONTENT_HEIGHT = 330;
+const MAX_TIMEOUT_DELAY = Math.pow(2, 31) - 1;
 
-Polymer({
-  is: 'event-card',
+class EventCard {
+  get behaviors() {
+    return [
+      Polymer.NeonAnimationRunnerBehavior,
+    ];
+  }
 
-  behaviors: [
-    Polymer.NeonAnimationRunnerBehavior,
-  ],
+  beforeRegister() {
+    this.is = 'event-card';
 
-  properties: {
-    eventId: String,
-    calendarId: String,
-    recurrenceId: String,
-    name: String,
-    startDateMs: Number,
-    endDateMs: Number,
-    first: {
-      type: Boolean,
-      reflectToAttribute: true,
-    },
-    opened: {
-      type: Boolean,
-      reflectToAttribute: true,
-    },
-    starred: {
-      type: Boolean,
-      reflectToAttribute: true,
-      notify: true,
-    },
-    eventHidden: {
-      type: Boolean,
-      reflectToAttribute: true,
-      notify: true,
-    },
-    calendarHidden: Boolean,
-    color: String,
-    link: String,
-    animationConfig: {
-      value: function () {
-        var getAnimationConfig = (function (timing) {
-          return [
+    this.properties = {
+      eventId: String,
+      calendarId: String,
+      recurrenceId: String,
+      name: String,
+      startDateMs: Number,
+      endDateMs: Number,
+      first: {
+        type: Boolean,
+        reflectToAttribute: true,
+      },
+      opened: {
+        type: Boolean,
+        reflectToAttribute: true,
+      },
+      starred: {
+        type: Boolean,
+        reflectToAttribute: true,
+        notify: true,
+      },
+      eventHidden: {
+        type: Boolean,
+        reflectToAttribute: true,
+        notify: true,
+      },
+      calendarHidden: Boolean,
+      color: String,
+      link: String,
+      animationConfig: {
+        value() {
+          const getAnimationConfig = timing => [
             {
               name: 'event-collapse-expand-animation',
               node: this.$.collapse,
@@ -52,139 +54,132 @@ Polymer({
             {
               name: 'event-margin-expand-animation',
               node: this.$.material,
-              isFirst: (function () {
-                return this.first;
-              }).bind(this),
+              isFirst: () => this.first,
               timing: timing,
             },
           ];
-        }).bind(this);
-        return {
-          open: getAnimationConfig({
-            duration: 200,
-            easing: 'ease-out',
-            direction: 'normal',
-          }),
-          close: getAnimationConfig({
-            duration: 200,
-            easing: 'ease-in',
-            direction: 'reverse',
-          }),
-        };
+
+          return {
+            open: getAnimationConfig({
+              duration: 200,
+              easing: 'ease-out',
+              direction: 'normal',
+            }),
+            close: getAnimationConfig({
+              duration: 200,
+              easing: 'ease-in',
+              direction: 'reverse',
+            }),
+          };
+        },
       },
-    },
-    _duration: {
-      type: Number,
-      value: 0,
-    },
-    _isStartDuration: {
-      type: Boolean,
-      value: true,
-    },
-  },
+    };
 
-  observers: [
-    '_starChanged(starred)',
-    '_hideChanged(eventHidden)',
-    '_resetUpdater(startDateMs, endDateMs, opened)',
-  ],
+    this.observers = [
+      '_starChanged(starred)',
+      '_hideChanged(eventHidden)',
+      '_resetUpdater(startDateMs, endDateMs, opened)',
+    ];
+  }
 
-  ready: function () {
+  ready() {
+    this._duration = 0;
+    this._isStartDuration = true;
     this._durationUpdaterId = -1;
 
     // True for setTimeout, false for requestAnimationFrame.
     this._durationUpdaterIsTimeout = null;
-  },
+  }
 
   //
   // Actions
   //
 
-  toggleExpand: function () {
-    var opened = !this.opened;
+  toggleExpand() {
+    let opened = !this.opened;
     this.playAnimation(opened ? 'open' : 'close');
     this.fire('event-open-toggled', {
       eventId: this.eventId,
       calendarId: this.calendarId,
       opened: opened,
     });
-  },
+  }
 
-  toggleStar: function (event) {
+  toggleStar(event) {
     this.starred = !this.starred;
     event.stopPropagation();
-  },
+  }
 
-  toggleHide: function (event) {
+  toggleHide(event) {
     this.eventHidden = !this.eventHidden;
     event.stopPropagation();
-  },
+  }
 
-  _updateDuration: function (startDateMs, endDateMs, now) {
-    var durationSeconds = Math.floor((startDateMs - now) / 1000);
+  _updateDuration(startDateMs, endDateMs, now) {
+    let durationSeconds = (startDateMs - now) / 1000;
 
     if (durationSeconds <= 0) {
-      durationSeconds = Math.floor((endDateMs - now) / 1000);
-
-      if (durationSeconds < 0) {
-        this.fire('event-finish', {
-          calendarId: this.calendarId,
-          eventId: this.eventId,
-        });
-      } else {
-        this._isStartDuration = false;
-      }
+      durationSeconds = (endDateMs - now) / 1000;
+      this._isStartDuration = false;
     } else {
       this._isStartDuration = true;
     }
 
-    this._duration = durationSeconds;
-  },
+    if (durationSeconds < 0) {
+      durationSeconds = 0;
+      this.fire('event-finish', {
+        calendarId: this.calendarId,
+        eventId: this.eventId,
+      });
+    }
+
+    this._duration = Math.floor(durationSeconds);
+  }
 
   //
   // Getters
   //
 
-  _getElevation: function (opened) {
+  _getElevation(opened) {
     return opened ? 2 : 1;
-  },
+  }
 
-  _getIcon: function (calendarHidden) {
+  _getIcon(calendarHidden) {
     return calendarHidden ? 'ticktock:calendar-hidden' :
                             'ticktock:calendar';
-  },
+  }
 
-  _getIconFaded: function (eventHidden, calendarHidden) {
+  _getIconFaded(eventHidden, calendarHidden) {
     return eventHidden || calendarHidden;
-  },
+  }
 
-  _getMajorDurationMax: function (duration) {
+  _getMajorDurationMax(duration) {
     return getMajorDurationMax(duration);
-  },
+  }
 
-  _getMinorDurationSegments: function (duration) {
+  _getMinorDurationSegments(duration) {
     return getDurationSegments(duration).slice(1);
-  },
+  }
 
   // Text Getters
 
-  _getNameSuffixText: function (isStartDuration) {
+  _getNameSuffixText(isStartDuration) {
     return isStartDuration ? '' : 'Ends';
-  },
+  }
 
-  _getMajorDurationText: function (duration) {
+  _getMajorDurationText(duration) {
     return getDurationSegments(duration, false)[0];
-  },
+  }
 
-  _getHideButtonText: function (eventHidden) {
+  _getHideButtonText(eventHidden) {
     return eventHidden ? 'Unhide' : 'Hide';
-  },
+  }
 
   //
   // Observers
   //
 
-  _starChanged: function (starred) {
+  _starChanged(starred) {
     if (starred && this.eventHidden) {
       this.eventHidden = false;
     } else {
@@ -195,9 +190,9 @@ Polymer({
         hidden: this.eventHidden,
       });
     }
-  },
+  }
 
-  _hideChanged: function (hidden) {
+  _hideChanged(hidden) {
     if (hidden && this.starred) {
       this.starred = false;
     } else {
@@ -208,58 +203,57 @@ Polymer({
         hidden: this.eventHidden,
       });
     }
-  },
+  }
 
-  _resetUpdater: function (startDateMs, endDateMs, opened) {
+  _resetUpdater(startDateMs, endDateMs, opened) {
     if (this._durationUpdaterIsTimeout) {
       clearTimeout(this._durationUpdaterId);
     } else {
       cancelAnimationFrame(this._durationUpdaterId);
     }
 
-    var updateDuration;
     if (opened || needsAnimationFrame(this._duration)) {
-      updateDuration = (function () {
+      const updateDuration = () => {
         this._updateDuration(startDateMs, endDateMs, Date.now());
         this._durationUpdaterId = requestAnimationFrame(updateDuration);
-      }).bind(this);
+      };
 
       this._durationUpdaterId = requestAnimationFrame(updateDuration);
       this._durationUpdaterIsTimeout = false;
     } else {
-      updateDuration = (function () {
+      const updateDuration = () => {
         this._updateDuration(startDateMs, endDateMs, Date.now());
-        var nextUpdate = getNextUpdate(this._duration);
+        let nextUpdate = getNextUpdate(this._duration);
         if (nextUpdate || !needsAnimationFrame(this._duration)) {
           this._durationUpdaterId = setTimeout(updateDuration,
                                                nextUpdate || 200);
         } else {
           this._resetUpdater(startDateMs, endDateMs, opened);
         }
-      }).bind(this);
+      };
 
       updateDuration();
       this._durationUpdaterIsTimeout = true;
     }
-  },
+  }
 
   //
   // Event Handlers
   //
 
-  _noPropagation: function (event) {
+  _noPropagation(event) {
     event.stopPropagation();
-  },
-});
+  }
+}
 
-var S_IN_SECOND = 1;
-var S_IN_MINUTE = S_IN_SECOND * 60;
-var S_IN_HOUR = S_IN_MINUTE * 60;
-var S_IN_DAY = S_IN_HOUR * 24;
-var S_IN_MONTH = S_IN_DAY * 30;
-var S_IN_YEAR = S_IN_DAY * 365;
+const S_IN_SECOND = 1;
+const S_IN_MINUTE = S_IN_SECOND * 60;
+const S_IN_HOUR = S_IN_MINUTE * 60;
+const S_IN_DAY = S_IN_HOUR * 24;
+const S_IN_MONTH = S_IN_DAY * 30;
+const S_IN_YEAR = S_IN_DAY * 365;
 
-var conversionFactors = [
+const conversionFactors = [
   S_IN_YEAR,
   S_IN_MONTH,
   S_IN_DAY,
@@ -267,9 +261,9 @@ var conversionFactors = [
   S_IN_MINUTE,
   S_IN_SECOND,
 ];
-var MAX_CONVERSION_FACTOR = S_IN_YEAR * 10;
+const MAX_CONVERSION_FACTOR = S_IN_YEAR * 10;
 
-var units = {};
+const units = {};
 units[S_IN_SECOND] = 'Second';
 units[S_IN_MINUTE] = 'Minute';
 units[S_IN_HOUR] = 'Hour';
@@ -284,11 +278,11 @@ units[S_IN_YEAR] = 'Year';
  * @return {Number} - milisecond time until the next update.
  */
 function getNextUpdate(seconds) {
-  var conversionFactor = conversionFactors.find(function (factor) {
-    return seconds > factor;
-  }) || 1;
+  let conversionFactor = conversionFactors.find(factor =>
+    seconds > factor
+  ) || 1;
 
-  var nextUpdate = (seconds % conversionFactor) * 1000;
+  let nextUpdate = (seconds % conversionFactor) * 1000;
   return Math.min(nextUpdate, MAX_TIMEOUT_DELAY);
 }
 
@@ -298,13 +292,13 @@ function needsAnimationFrame(seconds) {
 
 function getDurationSegments(seconds, multiple) {
   multiple = (multiple === undefined) ? true : multiple;
-  var segments = [];
-  var number;
-  for (var i = 0, len = conversionFactors.length; i < len; i++) {
+  let segments = [];
+  let number;
+  for (let i = 0, len = conversionFactors.length; i < len; i++) {
     number = Math.floor(seconds / conversionFactors[i]);
 
     if (number || i === len - 1) {
-      var segment = String(number) + ' ' + units[conversionFactors[i]];
+      let segment = String(number) + ' ' + units[conversionFactors[i]];
       if (number !== 1) {
         segment += 's';
       }
@@ -323,9 +317,9 @@ function getDurationSegments(seconds, multiple) {
 }
 
 function getMajorDurationMax(seconds) {
-  var max;
-  for (var i = 0, len = conversionFactors.length; i < len; i++) {
-    var number = Math.floor(seconds / conversionFactors[i]);
+  let max;
+  for (let i = 0, len = conversionFactors.length; i < len; i++) {
+    let number = Math.floor(seconds / conversionFactors[i]);
     if (number) {
       return max || MAX_CONVERSION_FACTOR;
     } else {
@@ -335,5 +329,11 @@ function getMajorDurationMax(seconds) {
 
   return 1;
 }
+
+//
+// Element registration
+//
+
+Polymer(EventCard);
 
 })();

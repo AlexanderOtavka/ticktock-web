@@ -1,6 +1,3 @@
-<script src="../bower_components/page/page.js"></script>
-
-<script>
 window.addEventListener('WebComponentsReady', function () {
   'use strict';
 
@@ -8,17 +5,17 @@ window.addEventListener('WebComponentsReady', function () {
   // client-side router inspired by the Express router
   // More info: https://visionmedia.github.io/page.js/
 
-  var DEFAULT_CALENDAR_ID = '*';
-  var ESCAPED_DEFAULT_CALENDAR_ID = '\\' + DEFAULT_CALENDAR_ID;
+  const DEFAULT_CALENDAR_ID = '*';
+  const ESCAPED_DEFAULT_CALENDAR_ID = '\\' + DEFAULT_CALENDAR_ID;
 
   // Routes
-  page('/', scrollToTop, function () {
+  page('/', scrollToTop, () => {
     eventList(DEFAULT_CALENDAR_ID);
   });
 
   page('/calendars/' + ESCAPED_DEFAULT_CALENDAR_ID, '/');
 
-  page('/calendars/:calendarId', scrollToTop, function (data) {
+  page('/calendars/:calendarId', scrollToTop, data => {
     eventList(data.params.calendarId);
   });
 
@@ -35,11 +32,9 @@ window.addEventListener('WebComponentsReady', function () {
 
   // Utility functions
   function eventList(selectedCalendar) {
-    var PAGE_NAME = 'eventList';
+    const PAGE_NAME = 'eventList';
     app.page = PAGE_NAME;
     app.route = PAGE_NAME + ':' + selectedCalendar;
     app.selectCalendar(app.getUrlDecoded(selectedCalendar));
   }
-
 });
-</script>

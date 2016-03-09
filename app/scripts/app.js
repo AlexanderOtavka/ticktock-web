@@ -10,7 +10,7 @@ window.addEventListener('WebComponentsReady', function () {
 // Constants
 //
 
-var CalendarStatus = {
+const CalendarStatus = {
   GOOD: 0,
   EMPTY: 1,
   LOADING: 2,
@@ -110,7 +110,7 @@ app.showNetworkErrorToast = function () {
  * Close drawer after menu item is selected if drawerPanel is narrow.
  */
 app.closeDrawer = function () {
-  var drawerPanel = app.$.paperDrawerPanel;
+  let drawerPanel = app.$.paperDrawerPanel;
   if (drawerPanel.narrow) {
     drawerPanel.closeDrawer();
   }
@@ -124,7 +124,7 @@ app.scrollPageToTop = function () {
 };
 
 app.selectCalendar = function (calendarId) {
-  var calendar;
+  let calendar;
   if (calendarId) {
     calendar = app.$.apiManager.getCalendarById(calendarId);
   } else {
@@ -141,7 +141,7 @@ app.toggleShowHiddenEvents = function () {
 };
 
 app.toggleShowHiddenCalendars = function () {
-  setTimeout(function () {
+  setTimeout(() => {
     app.showHiddenCalendars = !app.showHiddenCalendars;
   }, 20);
 };

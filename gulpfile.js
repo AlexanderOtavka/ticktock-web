@@ -42,60 +42,6 @@ var AUTOPREFIXER_BROWSERS = [
   'bb >= 10',
 ];
 
-var styleTask = function (stylesPath, srcs) {
-  return gulp.src(srcs.map(function (src) {
-      return path.join('app', stylesPath, src);
-    }))
-    .pipe($.changed(stylesPath, { extension: '.css' }))
-    .pipe($.autoprefixer(AUTOPREFIXER_BROWSERS))
-    .pipe(gulp.dest('.tmp/' + stylesPath))
-    .pipe($.cssmin())
-    .pipe(gulp.dest('dist/' + stylesPath))
-    .pipe($.size({ title: stylesPath }));
-};
-
-var imageOptimizeTask = function (src, dest) {
-  return gulp.src(src)
-    .pipe($.cache($.imagemin({
-      progressive: true,
-      interlaced: true,
-    })))
-    .pipe(gulp.dest(dest))
-    .pipe($.size({ title: 'images' }));
-};
-
-var optimizeHtmlTask = function (src, dest) {
-  var assets = $.useref.assets({ searchPath: ['.tmp', 'app', 'dist'] });
-
-  return gulp.src(src)
-
-    // Replace path for vulcanized assets
-    .pipe($.if('*.html',
-          $.replace('elements/elements.html',
-                    'elements/elements.vulcanized.html')))
-    .pipe(assets)
-
-    // Concatenate and minify JavaScript
-    .pipe($.if('*.js', $.uglify({ preserveComments: 'some' })))
-
-    // Concatenate and minify styles
-    // In case you are still using useref build blocks
-    .pipe($.if('*.css', $.cssmin()))
-    .pipe(assets.restore())
-    .pipe($.useref())
-
-    // Minify any HTML
-    .pipe($.if('*.html', $.minifyHtml({
-      quotes: true,
-      empty: true,
-      spare: true,
-    })))
-
-    // Output files
-    .pipe(gulp.dest(dest))
-    .pipe($.size({ title: 'html' }));
-};
-
 // Compile and automatically prefix stylesheets
 gulp.task('styles', function () {
   return styleTask('styles', ['**/*.css']);
@@ -128,6 +74,22 @@ gulp.task('jscs', function () {
     .pipe($.jscs())
     .pipe($.jscs.reporter())
     .pipe($.if(!browserSync.active, $.jscs.reporter('fail')));
+});
+
+// Transpile all JS to ES5.
+gulp.task('js', function () {
+  return gulp.src(['app/**/*.{js,html}', '!app/bower_components/**/*'])
+    .pipe($.if(browserSync.active, $.plumber()))
+    .pipe($.sourcemaps.init())
+
+      // Extract JS from .html files
+      .pipe($.if('*.html', $.crisper({ scriptInHead: false })))
+      .pipe($.if('*.js', $.babel({
+        presets: ['es2015'],
+      })))
+    .pipe($.sourcemaps.write('.'))
+    .pipe(gulp.dest('.tmp/'))
+    .pipe(gulp.dest('dist/'));
 });
 
 // Optimize images
@@ -182,7 +144,7 @@ gulp.task('fonts', function () {
 // Scan your HTML for assets & optimize them
 gulp.task('html', function () {
   return optimizeHtmlTask(
-    ['app/**/*.html', '!app/{elements,test}/**/*.html'],
+    ['dist/**/*.html', '!dist/{elements,test}/**/*.html'],
     'dist');
 });
 
@@ -254,7 +216,7 @@ gulp.task('clean', function (cb) {
 });
 
 // Watch files for changes & reload
-gulp.task('serve', ['styles', 'elements', 'images'], function () {
+gulp.task('serve', ['styles', 'elements', 'images', 'js'], function () {
   var proxyOptions = url.parse('http://localhost:8080/_ah');
   proxyOptions.route = '/_ah';
 
@@ -284,11 +246,11 @@ gulp.task('serve', ['styles', 'elements', 'images'], function () {
     },
   });
 
-  gulp.watch(['app/**/*.html'], reload);
+  gulp.watch(['app/**/*.html'], ['js', reload]);
   gulp.watch(['app/styles/**/*.css'], ['styles', reload]);
   gulp.watch(['app/elements/**/*.css'], ['elements', reload]);
   gulp.watch(['app/{scripts,elements}/**/{*.js,*.html}'],
-             ['jshint', 'jscs', reload]);
+             ['jshint', 'jscs', 'js', reload]);
   gulp.watch(['app/images/**/*'], reload);
 });
 
@@ -296,7 +258,7 @@ gulp.task('serve', ['styles', 'elements', 'images'], function () {
 gulp.task('default', ['clean'], function (cb) {
   runSequence(
     ['copy', 'styles'],
-    'elements',
+    ['elements', 'js'],
     ['jshint', 'jscs', 'images', 'fonts', 'html'],
 
     // 'vulcanize', 'rename-index', 'remove-old-build-index',
@@ -315,3 +277,57 @@ require('web-component-tester').gulp.init(gulp);
 
 // Load custom tasks from the `tasks` directory
 try { require('require-dir')('tasks'); } catch (err) {}
+
+function styleTask(stylesPath, srcs) {
+  return gulp.src(srcs.map(function (src) {
+      return path.join('app', stylesPath, src);
+    }))
+    .pipe($.changed(stylesPath, { extension: '.css' }))
+    .pipe($.autoprefixer(AUTOPREFIXER_BROWSERS))
+    .pipe(gulp.dest('.tmp/' + stylesPath))
+    .pipe($.cssmin())
+    .pipe(gulp.dest('dist/' + stylesPath))
+    .pipe($.size({ title: stylesPath }));
+}
+
+function imageOptimizeTask(src, dest) {
+  return gulp.src(src)
+    .pipe($.cache($.imagemin({
+      progressive: true,
+      interlaced: true,
+    })))
+    .pipe(gulp.dest(dest))
+    .pipe($.size({ title: 'images' }));
+}
+
+function optimizeHtmlTask(src, dest) {
+  var assets = $.useref.assets();
+
+  return gulp.src(src)
+
+    // Replace path for vulcanized assets
+    .pipe($.if('*.html',
+          $.replace('elements/elements.html',
+                    'elements/elements.vulcanized.html')))
+    .pipe(assets)
+
+    // Concatenate and minify JavaScript
+    .pipe($.if('*.js', $.uglify({ preserveComments: 'some' })))
+
+    // Concatenate and minify styles
+    // In case you are still using useref build blocks
+    .pipe($.if('*.css', $.cssmin()))
+    .pipe(assets.restore())
+    .pipe($.useref())
+
+    // Minify any HTML
+    .pipe($.if('*.html', $.minifyHtml({
+      quotes: true,
+      empty: true,
+      spare: true,
+    })))
+
+    // Output files
+    .pipe(gulp.dest(dest))
+    .pipe($.size({ title: 'html' }));
+}
