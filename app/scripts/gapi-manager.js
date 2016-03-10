@@ -22,27 +22,43 @@ if (window.hasOwnProperty('GAPIManager')) {
 let _onLoad;
 
 /**
- * Error with an HTTP status code, thrown when API request fails.
+ * Base class for errors in GAPIManager.
  */
-class HTTPError extends Error {
-  constructor(code, message) {
-    super();
+class GAPIError {
+  constructor(message, data) {
     this.message = message;
-    this.code = code;
+    this.data = (data === undefined) ? {} : data;
   }
 }
 
 /**
+ * Error with an HTTP status code, thrown when API request fails.
+ */
+class HTTPError extends GAPIError {
+  constructor(code, message) {
+    super(message);
+    this.code = code;
+  }
+}
+
+const ACCESS_DENIED = 'access_denied';
+
+/**
  * Error signaling authorization failed.
  */
-class AuthError extends Error {
+class AuthError extends GAPIError {
   constructor(errorType, errorSubtype) {
-    super();
-    this.message = errorType + ': ' + errorSubtype;
+    super(errorType + ': ' + errorSubtype);
     this.type = errorType;
     this.subtype = errorSubtype;
 
-    this.accessDenied = (errorSubtype === 'access_denied');
+    this.accessDenied = (errorSubtype === ACCESS_DENIED);
+  }
+
+  static getUnknownError(data) {
+    let err = new AuthError('unknown', ACCESS_DENIED);
+    err.data = data;
+    return err;
   }
 }
 
@@ -131,7 +147,9 @@ class GAPIManager {
           immediate: mode,
           cookie_policy: window.location.origin,
         }, resp => {
-          if (resp.error) {
+          if (!resp) {
+            reject(AuthError.getUnknownError(resp));
+          } else if (resp.error) {
             reject(new AuthError(resp.error, resp.error_subtype));
           } else {
             resolve(resp);

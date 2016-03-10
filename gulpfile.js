@@ -61,8 +61,7 @@ gulp.task('jshint', function () {
   ])
     .pipe($.jshint.extract('auto')) // Extract JS from .html files
     .pipe($.jshint())
-    .pipe($.jshint.reporter('jshint-stylish'))
-    .pipe($.if(!browserSync.active, $.jshint.reporter('fail')));
+    .pipe($.jshint.reporter('jshint-stylish'));
 });
 
 gulp.task('jscs', function () {
@@ -72,8 +71,7 @@ gulp.task('jscs', function () {
     'gulpfile.js',
   ])
     .pipe($.jscs())
-    .pipe($.jscs.reporter())
-    .pipe($.if(!browserSync.active, $.jscs.reporter('fail')));
+    .pipe($.jscs.reporter());
 });
 
 // Transpile all JS to ES5.
@@ -127,7 +125,6 @@ gulp.task('copy', function () {
     .pipe(gulp.dest('dist/sw-toolbox'));
 
   var vulcanized = gulp.src(['app/elements/elements.html'])
-    .pipe($.rename('elements.vulcanized.html'))
     .pipe(gulp.dest('dist/elements'));
 
   return merge(app, bower, elements, vulcanized, swBootstrap, swToolbox)
@@ -151,25 +148,9 @@ gulp.task('html', function () {
 // Polybuild will take care of inlining HTML imports,
 // scripts and CSS for you.
 gulp.task('vulcanize', function () {
-  return gulp.src('dist/index.html')
+  return gulp.src('dist/elements/elements.html')
     .pipe(polybuild({ maximumCrush: true }))
-    .pipe(gulp.dest('dist/'));
-});
-
-// If you require more granular configuration of Vulcanize
-// than polybuild provides, follow instructions from readme at:
-// https://github.com/PolymerElements/polymer-starter-kit/#if-you-require-more-
-// granular-configuration-of-vulcanize-than-polybuild-provides-you-an-option-by
-
-// Rename Polybuild's index.build.html to index.html
-gulp.task('rename-index', function () {
-  return gulp.src('dist/index.build.html')
-    .pipe($.rename('index.html'))
-    .pipe(gulp.dest('dist/'));
-});
-
-gulp.task('remove-old-build-index', function () {
-  return del('dist/index.build.html');
+    .pipe(gulp.dest('dist/elements/'));
 });
 
 /**
@@ -217,33 +198,8 @@ gulp.task('clean', function (cb) {
 
 // Watch files for changes & reload
 gulp.task('serve', ['styles', 'elements', 'images', 'js'], function () {
-  var proxyOptions = url.parse('http://localhost:8080/_ah');
-  proxyOptions.route = '/_ah';
-
-  browserSync({
-    port: 5000,
-    notify: false,
-    logPrefix: 'Tock',
-    snippetOptions: {
-      rule: {
-        match: '<span id="browser-sync-binding"></span>',
-        fn: function (snippet) {
-          return snippet;
-        },
-      },
-    },
-
-    // Run as an https by uncommenting 'https: true'
-    // Note: this uses an unsigned certificate which on first access
-    //       will present a certificate warning in the browser.
-    // https: true,
-    server: {
-      baseDir: ['.tmp', 'app'],
-      middleware: [proxy(proxyOptions), historyApiFallback()],
-      routes: {
-        '/bower_components': 'bower_components',
-      },
-    },
+  serve(5000, ['.tmp', 'app'], {
+    '/bower_components': 'bower_components',
   });
 
   gulp.watch(['app/**/*.html'], ['js', reload]);
@@ -254,14 +210,17 @@ gulp.task('serve', ['styles', 'elements', 'images', 'js'], function () {
   gulp.watch(['app/images/**/*'], reload);
 });
 
+gulp.task('serve:dist', ['default'], function () {
+  serve(5001, 'dist');
+});
+
 // Build production files, the default task
 gulp.task('default', ['clean'], function (cb) {
   runSequence(
     ['copy', 'styles'],
     ['elements', 'js'],
     ['jshint', 'jscs', 'images', 'fonts', 'html'],
-
-    // 'vulcanize', 'rename-index', 'remove-old-build-index',
+    'vulcanize',
     'cache-config',
     cb);
 });
@@ -308,7 +267,7 @@ function optimizeHtmlTask(src, dest) {
     // Replace path for vulcanized assets
     .pipe($.if('*.html',
           $.replace('elements/elements.html',
-                    'elements/elements.vulcanized.html')))
+                    'elements/elements.build.html')))
     .pipe(assets)
 
     // Concatenate and minify JavaScript
@@ -330,4 +289,33 @@ function optimizeHtmlTask(src, dest) {
     // Output files
     .pipe(gulp.dest(dest))
     .pipe($.size({ title: 'html' }));
+}
+
+function serve(port, baseDir, routes) {
+  var proxyOptions = url.parse('http://localhost:8080/_ah');
+  proxyOptions.route = '/_ah';
+
+  browserSync({
+    port: port,
+    notify: false,
+    logPrefix: 'Tock',
+    snippetOptions: {
+      rule: {
+        match: '<span id="browser-sync-binding"></span>',
+        fn: function (snippet) {
+          return snippet;
+        },
+      },
+    },
+
+    // Run as an https by uncommenting 'https: true'
+    // Note: this uses an unsigned certificate which on first access
+    //       will present a certificate warning in the browser.
+    // https: true,
+    server: {
+      baseDir: baseDir,
+      middleware: [proxy(proxyOptions), historyApiFallback()],
+      routes: routes,
+    },
+  });
 }
