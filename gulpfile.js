@@ -25,6 +25,8 @@ var glob = require('glob');
 var packageJson = require('./package.json');
 var crypto = require('crypto');
 
+var API_PORT = 8080;
+
 // Load tasks for web-component-tester
 // Adds tasks for `gulp test:local` and `gulp test:remote`
 require('web-component-tester').gulp.init(gulp);
@@ -33,7 +35,7 @@ require('web-component-tester').gulp.init(gulp);
  * Watch files for changes & reload.
  */
 gulp.task('serve', ['jshint', 'jscs', 'babel'], function () {
-  $tasks.serve(5000, ['.tmp', 'app']);
+  $tasks.serve(5000, API_PORT, ['.tmp', 'app']);
 
   var reload = $tasks.serve.reload;
   gulp.watch(['app/**/*.html', '!app/bower_components/**/*.html'],
@@ -48,7 +50,7 @@ gulp.task('serve', ['jshint', 'jscs', 'babel'], function () {
  * Serve production build.
  */
 gulp.task('serve:dist', ['default'], function () {
-  $tasks.serve(5001, 'dist');
+  $tasks.serve(5001, API_PORT, 'dist');
 });
 
 /**

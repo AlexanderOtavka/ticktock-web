@@ -3,10 +3,12 @@
 var browserSync = require('browser-sync');
 var historyApiFallback = require('connect-history-api-fallback');
 var proxy = require('proxy-middleware');
-var proxyOptions = require('url').parse('http://localhost:8080/_ah');
-proxyOptions.route = '/_ah';
+var url = require('url');
 
-var serve = function (port, baseDir) {
+var serve = function (port, apiPort, baseDir) {
+  var proxyOptions = url.parse('http://localhost:' + apiPort + '/_ah');
+  proxyOptions.route = '/_ah';
+
   browserSync({
     port: port,
     notify: false,
@@ -32,7 +34,7 @@ var serve = function (port, baseDir) {
 };
 
 serve.reload = function () {
-  return browserSync.reload;
+  return browserSync.reload();
 };
 
 serve.isActive = function () {
