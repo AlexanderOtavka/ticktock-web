@@ -6,21 +6,21 @@ window.addEventListener('WebComponentsReady', function () {
   // More info: https://visionmedia.github.io/page.js/
 
   const DEFAULT_CALENDAR_ID = '*';
-  const ESCAPED_DEFAULT_CALENDAR_ID = '\\' + DEFAULT_CALENDAR_ID;
 
   // Routes
   page('/', scrollToTop, () => {
     eventList(DEFAULT_CALENDAR_ID);
   });
 
-  page('/calendars/' + ESCAPED_DEFAULT_CALENDAR_ID, '/');
+  page(`/calendars/${escape(DEFAULT_CALENDAR_ID)}`, '/');
 
   page('/calendars/:calendarId', scrollToTop, data => {
     eventList(data.params.calendarId);
   });
 
-  // add #! before urls
+  // Config
   page({
+    // add #! before urls
     hashbang: true,
   });
 
@@ -31,6 +31,10 @@ window.addEventListener('WebComponentsReady', function () {
   }
 
   // Utility functions
+  function escape(path) {
+    return path.replace(/[\*:\(\)]/g, '\\$&');
+  }
+
   function eventList(selectedCalendar) {
     const PAGE_NAME = 'eventList';
     app.page = PAGE_NAME;
