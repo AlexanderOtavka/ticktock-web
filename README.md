@@ -3,6 +3,10 @@
 > An app that counts down to upcoming events you care about.
 > Built on top of Polymer Starter Kit.
 
+This is the repository for the web client.  The repository for the API server is at <https://github.com/DHSDevelopersClub/ticktock>.  A production version is serving at <https://dhsdev-ticktock.appspot.com/>.
+
+---
+
 ![](https://cloud.githubusercontent.com/assets/110953/7877439/6a69d03e-0590-11e5-9fac-c614246606de.png)
 ## Polymer Starter Kit
 
