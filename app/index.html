@@ -7,7 +7,7 @@
     name="description"
     content="An app that counts down to upcoming events you care about.">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="generator" content="TickTock" />
+  <meta name="generator" content="TickTock">
   <title>TickTock</title>
   <link rel="icon" href="/favicon.ico?v=1">
 
@@ -40,28 +40,22 @@
     content="images/touch/ms-touch-icon-144x144-precomposed.png">
 
   <!-- Shims and polyfills -->
-  <!-- build:js scripts/polyfills/polyfills.min.js -->
-  <script src="bower_components/es5-shim/es5-shim.js"></script>
+  <!-- build:js scripts/polyfills/polyfills.js -->
+  <script src="bower_components/es5-shim/es5-shim.min.js"></script>
   <script src="scripts/polyfills/array-find-polyfill.js"></script>
   <script src="scripts/polyfills/location-origin-polyfill.js"></script>
   <script src="scripts/polyfills/raf-polyfill.js"></script>
-  <script src="bower_components/es6-promise/promise.js"></script>
-  <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="bower_components/es6-promise-polyfill/promise.min.js"></script>
+  <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
   <!-- endbuild -->
 
   <!-- Endpoints client library and wrapper -->
-  <!-- build:js scripts/gapi-manager.min.js -->
   <script src="scripts/gapi-manager.js"></script>
-  <!-- endbuild -->
-  <script src="https://apis.google.com/js/client.js?onload=__onGAPILoad__" defer></script>
+  <script src="https://apis.google.com/js/client.js?onload=__onGAPILoad__"></script>
 
-  <!-- will be replaced with elements/elements.build.html -->
   <link rel="import" href="elements/elements.html">
-  <!-- endreplace-->
 
-  <!-- build:css styles/main.css -->
   <link rel="stylesheet" href="styles/main.css">
-  <!-- endbuild-->
 
   <!-- For shared styles, shared-styles.html import in elements.html -->
   <style is="custom-style" include="shared-styles"></style>
@@ -286,6 +280,7 @@
       auto-register
       clients-claim
       skip-waiting
+      base-uri="bower_components/platinum-sw/bootstrap"
       on-service-worker-installed="showInstalledToast">
 
       <platinum-sw-cache
@@ -301,9 +296,7 @@
 
   </template>
 
-  <!-- build:js scripts/app.min.js -->
   <script src="scripts/app.js"></script>
-  <!-- endbuild -->
 </body>
 
 </html>
