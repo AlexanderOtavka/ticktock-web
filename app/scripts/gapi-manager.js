@@ -35,30 +35,30 @@ class GAPIError {
  * Error with an HTTP status code, thrown when API request fails.
  */
 class HTTPError extends GAPIError {
-  constructor(code, message) {
-    super(message);
+  constructor(code, message, data) {
+    super(message, data);
     this.code = code;
   }
 }
-
-const ACCESS_DENIED = 'access_denied';
 
 /**
  * Error signaling authorization failed.
  */
 class AuthError extends GAPIError {
-  constructor(errorType, errorSubtype) {
-    super(`${errorType}: ${errorSubtype}`);
-    this.type = errorType;
-    this.subtype = errorSubtype;
-
-    this.accessDenied = (errorSubtype === ACCESS_DENIED);
+  static get ACCESS_DENIED() {
+    return 'access_denied';
   }
 
   static getUnknownError(data) {
-    let err = new AuthError('unknown', ACCESS_DENIED);
-    err.data = data;
-    return err;
+    return new AuthError('unknown', AuthError.ACCESS_DENIED, data);
+  }
+
+  constructor(errorType, errorSubtype, data) {
+    super(`${errorType}: ${errorSubtype}`, data);
+    this.type = errorType;
+    this.subtype = errorSubtype;
+
+    this.accessDenied = (errorSubtype === AuthError.ACCESS_DENIED);
   }
 }
 
