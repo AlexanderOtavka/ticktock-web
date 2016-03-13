@@ -182,13 +182,22 @@ gulp.task('babel', function () {
     '!app/test/**',
   ])
     .pipe($.changed('.tmp', { extension: '.js' }))
-    .pipe($.if($tasks.serve.isActive(), $.plumber()))
     .pipe($.sourcemaps.init())
       // Extract JS from .html files
       .pipe($.if('*.html', $.crisper({ scriptInHead: false })))
       .pipe($.if('*.js', $.babel({
         presets: ['es2015'],
       })))
+      .on('error', function (err) {
+        console.log($.util.colors.red('[Babel Error]'));
+        if (err.showStack) {
+          console.log(err.stack);
+        } else {
+          console.log(err.name + ': ' + err.message + '\n' + err.codeFrame);
+        }
+
+        this.emit('end');
+      })
     .pipe($.sourcemaps.write('.'))
     .pipe(gulp.dest('.tmp'))
     .pipe($.if('*.js', $.uglify()))
