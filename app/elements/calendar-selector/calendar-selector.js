@@ -24,6 +24,7 @@ class CalendarSelector {
   }
 
   select(calendar) {
+    // FIXME: linkPaths isn't working
     let collection = Polymer.Collection.get(this.calendars);
     let newKey = collection.getKey(calendar);
     this._setSelectedCalendar(calendar);

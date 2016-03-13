@@ -55,10 +55,7 @@ class DropdownMenu {
   }
 
   open(event) {
-    setTimeout(() => {
-      this.$.dropdown.open();
-    }, 20);
-
+    requestAnimationFrame(() => this.$.dropdown.open());
     event.stopPropagation();
   }
 }
