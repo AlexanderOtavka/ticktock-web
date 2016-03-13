@@ -48,7 +48,7 @@ const ACCESS_DENIED = 'access_denied';
  */
 class AuthError extends GAPIError {
   constructor(errorType, errorSubtype) {
-    super(errorType + ': ' + errorSubtype);
+    super(`${errorType}: ${errorSubtype}`);
     this.type = errorType;
     this.subtype = errorSubtype;
 

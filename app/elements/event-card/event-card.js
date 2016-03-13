@@ -298,7 +298,7 @@ function getDurationSegments(seconds, multiple) {
     number = Math.floor(seconds / conversionFactors[i]);
 
     if (number || i === len - 1) {
-      let segment = String(number) + ' ' + units[conversionFactors[i]];
+      let segment = `${number} ${units[conversionFactors[i]]}`;
       if (number !== 1) {
         segment += 's';
       }

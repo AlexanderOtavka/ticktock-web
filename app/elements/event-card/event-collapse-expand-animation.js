@@ -20,7 +20,7 @@ class EventCollapseExpandAnimation {
         height: '0px',
       },
       {
-        height: config.maxHeight + 'px',
+        height: `${config.maxHeight}px`,
       },
     ], this.timingFromConfig(config));
 

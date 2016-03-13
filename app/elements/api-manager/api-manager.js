@@ -15,7 +15,7 @@ GAPIManager.setScopes([
   'https://www.googleapis.com/auth/calendar.readonly',
 ]);
 
-const LOCAL_API_ROOT = '//' + window.location.host + '/_ah/api';
+const LOCAL_API_ROOT = `//${window.location.host}/_ah/api`;
 const loadedTickTockAPI = GAPIManager.loadAPI('ticktock', 'v1', LOCAL_API_ROOT);
 const loadedOauth2API = GAPIManager.loadAPI('oauth2', 'v2');
 
@@ -106,7 +106,7 @@ class APIManager {
     // let calendarEventsSplicesRE =
     //   new RegExp('^calendars\\.#(?!' + allCalendarIndex + ')\\d+\\.events$');
     let calendarStateRE =
-      new RegExp('^calendars\\.#(?!' + allCalendarIndex + ')\\d+\\.' +
+      new RegExp(`^calendars\\.#(?!${allCalendarIndex})\\d+\\.` +
                  '(hidden|eventsErrored|eventsLoading)$');
 
     if (calendarsSplicesRE.test(changeRecord.path)) {

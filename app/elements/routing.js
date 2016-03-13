@@ -38,7 +38,7 @@ window.addEventListener('WebComponentsReady', function () {
   function eventList(selectedCalendar) {
     const PAGE_NAME = 'eventList';
     app.page = PAGE_NAME;
-    app.route = PAGE_NAME + ':' + selectedCalendar;
+    app.route = `${PAGE_NAME}:${selectedCalendar}`;
     app.selectCalendar(app.getUrlDecoded(selectedCalendar));
   }
 });
