@@ -13,19 +13,20 @@ http://polymer.github.io/PATENTS.txt
 'use strict';
 
 // Include Gulp & tools we'll use
-var gulp = require('gulp');
-var $ = require('gulp-load-plugins')();
-var $tasks = require('require-dir')('tasks', { camelcase: true });
-var del = require('del');
-var runSequence = require('run-sequence');
-var merge = require('merge-stream');
-var path = require('path');
-var fs = require('fs');
-var glob = require('glob');
-var packageJson = require('./package.json');
-var crypto = require('crypto');
+let gulp = require('gulp');
+let $ = require('gulp-load-plugins')();
+let $tasks = require('require-dir')('tasks', { camelcase: true });
+let browserSync = require('browser-sync');
+let del = require('del');
+let runSequence = require('run-sequence');
+let merge = require('merge-stream');
+let path = require('path');
+let fs = require('fs-promise');
+let globby = require('globby');
+let packageJson = require('./package.json');
+let crypto = require('crypto');
 
-var API_PORT = 8080;
+const API_PORT = 8080;
 
 // Load tasks for web-component-tester
 // Adds tasks for `gulp test:local` and `gulp test:remote`
@@ -34,37 +35,38 @@ require('web-component-tester').gulp.init(gulp);
 /**
  * Watch files for changes & reload.
  */
-gulp.task('serve', ['jshint', 'jscs', 'babel'], function () {
-  $tasks.serve(5000, API_PORT, ['.tmp', 'app']);
+gulp.task('serve', ['jshint', 'jscs', 'babel'], () => {
+  browserSync.init($tasks.getServerConfig(5000, API_PORT, ['.tmp', 'app'], {
+    '/bower_components': 'bower_components',
+  }));
 
-  var reload = $tasks.serve.reload;
-  gulp.watch(['app/**/*.html', '!app/bower_components/**/*.html'],
-             ['jshint', 'babel', reload]);
+  gulp.watch(['app/**/*.html', '!bower_components/**/*.html'],
+             ['jshint', 'babel', browserSync.reload]);
   gulp.watch(['app/{scripts,elements}/**/{*.js,*.html}'],
-             ['jshint', 'jscs', 'babel', reload]);
-  gulp.watch(['app/{styles,elements}/**/*.css'], reload);
-  gulp.watch(['app/images/**/*'], reload);
+             ['jshint', 'jscs', 'babel', browserSync.reload]);
+  gulp.watch(['app/{styles,elements}/**/*.css'], browserSync.reload);
+  gulp.watch(['app/images/**/*'], browserSync.reload);
 });
 
 /**
  * Serve production build.
  */
-gulp.task('serve:dist', ['default'], function () {
-  $tasks.serve(5001, API_PORT, 'dist');
-});
+gulp.task('serve:dist', ['default'], () =>
+  browserSync.init($tasks.getServerConfig(5001, API_PORT, 'dist'))
+);
 
 /**
  * Push build output to dist branch so git submodule can pick it up.
  */
-gulp.task('deploy', ['default'], function () {
-  return gulp.src('dist/**/*')
-    .pipe($.ghPages({ branch: 'dist' }));
-});
+gulp.task('deploy', ['default'], () =>
+  gulp.src('dist/**/*')
+    .pipe($.ghPages({ branch: 'dist' }))
+);
 
 /**
  * Build production files, the default task.
  */
-gulp.task('default', ['clean'], function (cb) {
+gulp.task('default', ['clean'], callback =>
   runSequence(
     ['jshint', 'jscs', 'copy'],
     ['styles', 'images', 'fonts', 'babel'],
@@ -72,14 +74,14 @@ gulp.task('default', ['clean'], function (cb) {
     'vulcanize',
     'prune',
     'cache-config',
-    cb);
-});
+    callback)
+);
 
 /**
  * Lint JavaScript.
  */
-gulp.task('jshint', function () {
-  return gulp.src([
+gulp.task('jshint', () =>
+  gulp.src([
     'app/scripts/**/*.js',
     'app/elements/**/*.js',
     'app/elements/**/*.html',
@@ -87,27 +89,27 @@ gulp.task('jshint', function () {
   ])
     .pipe($.jshint.extract('auto')) // Extract JS from .html files
     .pipe($.jshint())
-    .pipe($.jshint.reporter('jshint-stylish'));
-});
+    .pipe($.jshint.reporter('jshint-stylish'))
+);
 
 /**
  * Enforce JavaScript code style.
  */
-gulp.task('jscs', function () {
-  return gulp.src([
+gulp.task('jscs', () =>
+  gulp.src([
     'app/scripts/**/*.js',
     'app/elements/**/*.js',
     'gulpfile.js',
   ])
     .pipe($.jscs())
-    .pipe($.jscs.reporter());
-});
+    .pipe($.jscs.reporter())
+);
 
 /**
  * Copy root level files.
  */
-gulp.task('copy', function () {
-  var app = gulp.src([
+gulp.task('copy', () => {
+  let app = gulp.src([
     'app/*',
     '!app/test',
     '!app/cache-config.json',
@@ -118,19 +120,18 @@ gulp.task('copy', function () {
   })
     .pipe(gulp.dest('dist'));
 
-  var bower = gulp.src([
-    'app/bower_components/**/*',
+  let bower = gulp.src([
+    'bower_components/**/*',
 
     // Don't copy polyfills, useref will pick them up
-    '!app/bower_components/{webcomponentsjs,es5-shim,' +
-                           'es6-promise-polyfill}/**/*',
+    '!bower_components/{webcomponentsjs,es5-shim,es6-promise-polyfill}/**/*',
     '!**/.DS_Store',
   ], {
     nodir: true,
   })
     .pipe(gulp.dest('dist/bower_components'));
 
-  var elements = gulp.src([
+  let elements = gulp.src([
     'app/elements/**/*',
     '!**/.DS_Store',
   ])
@@ -143,43 +144,43 @@ gulp.task('copy', function () {
 /**
  * Minify stylesheets.
  */
-gulp.task('styles', function () {
-  return gulp.src('app/styles/**/*.css')
+gulp.task('styles', () =>
+  gulp.src('app/styles/**/*.css')
     .pipe($.cssmin())
     .pipe(gulp.dest('dist/styles'))
-    .pipe($.size({ title: 'styles' }));
-});
+    .pipe($.size({ title: 'styles' }))
+);
 
 /**
  * Optimize images.
  */
-gulp.task('images', function () {
-  return gulp.src('app/images/**/*')
+gulp.task('images', () =>
+  gulp.src('app/images/**/*')
     .pipe($.cache($.imagemin({
       progressive: true,
       interlaced: true,
     })))
     .pipe(gulp.dest('dist/images'))
-    .pipe($.size({ title: 'images' }));
-});
+    .pipe($.size({ title: 'images' }))
+);
 
 /**
  * Copy web fonts to dist.
  */
-gulp.task('fonts', function () {
-  return gulp.src('app/fonts/**/*')
+gulp.task('fonts', () =>
+  gulp.src('app/fonts/**/*')
     .pipe(gulp.dest('dist/fonts'))
-    .pipe($.size({ title: 'fonts' }));
-});
+    .pipe($.size({ title: 'fonts' }))
+);
 
 /**
  * Transpile all JS to ES5.
  */
-gulp.task('babel', function () {
-  return gulp.src([
+gulp.task('babel', () =>
+  gulp.src([
     'app/**/*.{js,html}',
-    '!app/bower_components/**',
-    '!app/test/**',
+    '!bower_components/**/*',
+    '!app/test/**/*',
   ])
     .pipe($.changed('.tmp', { extension: '.js' }))
     .pipe($.sourcemaps.init())
@@ -188,12 +189,12 @@ gulp.task('babel', function () {
       .pipe($.if('*.js', $.babel({
         presets: ['es2015'],
       })))
-      .on('error', function (err) {
+      .on('error', err => {
         console.log($.util.colors.red('[Babel Error]'));
         if (err.showStack) {
           console.log(err.stack);
         } else {
-          console.log(err.name + ': ' + err.message + '\n' + err.codeFrame);
+          console.log(`${err.name}: ${err.message}\n${err.codeFrame}`);
         }
 
         this.emit('end');
@@ -202,25 +203,25 @@ gulp.task('babel', function () {
     .pipe(gulp.dest('.tmp'))
     .pipe($.if('*.js', $.uglify()))
     .pipe(gulp.dest('dist'))
-    .pipe($.size({ title: 'babel' }));
-});
+    .pipe($.size({ title: 'babel' }))
+);
 
 /**
  * Minify HTML and concatinate blocks.
  */
-gulp.task('html', function () {
-  return gulp.src('dist/*.html')
-    .pipe($.useref({ searchPath: ['dist', 'app'] }))
+gulp.task('html', () =>
+  gulp.src('dist/*.html')
+    .pipe($.useref({ searchPath: ['dist', 'app', '.'] }))
     .pipe($.if('*.html', $tasks.htmlmin()))
     .pipe(gulp.dest('dist'))
-    .pipe($.size({ title: 'html' }));
-});
+    .pipe($.size({ title: 'html' }))
+);
 
 /**
  * Concatenate imports into one file.
  */
-gulp.task('vulcanize', function () {
-  return gulp.src('dist/elements/elements.html')
+gulp.task('vulcanize', () =>
+  gulp.src('dist/elements/elements.html')
     .pipe($.vulcanize({
       stripComments: true,
       inlineCss: true,
@@ -235,21 +236,21 @@ gulp.task('vulcanize', function () {
     .pipe($.if('*.html', $tasks.htmlmin()))
 
     .pipe(gulp.dest('dist/elements'))
-    .pipe($.size({ title: 'vulcanize' }));
-});
+    .pipe($.size({ title: 'vulcanize' }))
+);
 
 /**
  * Remove extra dist contents after vulcanize.
  */
-gulp.task('prune', function (cb) {
+gulp.task('prune', () =>
   del([
     'dist/{bower_components,elements}/**/*',
     '!dist/elements/elements.{html,js}',
 
     // Keep SW stuff
-    '!dist/bower_components/{platinum-sw,sw-toolbox,promise-polyfill}/**',
-  ], cb);
-});
+    '!dist/bower_components/{platinum-sw,sw-toolbox,promise-polyfill}/**/*',
+  ])
+);
 
 /**
  * Generate config data for the <sw-precache-cache> element.
@@ -263,35 +264,28 @@ gulp.task('prune', function (cb) {
  * worker-support
  * for more context.
  */
-gulp.task('cache-config', function (callback) {
-  var dir = 'dist';
-  var config = {
+gulp.task('cache-config', () => {
+  const dir = 'dist';
+  let config = {
     cacheId: packageJson.name || path.basename(__dirname),
     disabled: false,
   };
 
-  glob('{elements,scripts,styles}/**/*.*', { cwd: dir }, configureCache);
-
-  function configureCache(error, files) {
-    if (error) {
-      callback(error);
-    } else {
+  return globby('{elements,scripts,styles}/**/*.*', { cwd: dir })
+    .then(files => {
       files.push('index.html', './');
       config.precache = files;
 
-      var md5 = crypto.createHash('md5');
+      let md5 = crypto.createHash('md5');
       md5.update(JSON.stringify(config.precache));
       config.precacheFingerprint = md5.digest('hex');
 
-      var configPath = path.join(dir, 'cache-config.json');
-      fs.writeFile(configPath, JSON.stringify(config), callback);
-    }
-  }
+      return fs.writeFile(path.join(dir, 'cache-config.json'),
+                          JSON.stringify(config));
+    });
 });
 
 /**
  * Clean output directories.
  */
-gulp.task('clean', function (cb) {
-  del(['.tmp', 'dist'], cb);
-});
+gulp.task('clean', () => del(['.tmp', 'dist']));

@@ -1,9 +1,10 @@
 'use strict';
 
-var htmlmin = require('gulp-htmlmin');
-var cheerio = require('gulp-cheerio');
+let lazypipe = require('lazypipe');
+let htmlmin = require('gulp-htmlmin');
+let cheerio = require('gulp-cheerio');
 
-module.exports = require('lazypipe')()
+module.exports = lazypipe()
   .pipe(htmlmin, {
     removeComments: true,
     collapseWhitespace: true,
@@ -14,19 +15,17 @@ module.exports = require('lazypipe')()
   })
 
   // Manually minify inline css, since polymer syntax breaks css parsers
-  .pipe(cheerio, function ($$) {
-    $$('style').each(function () {
-      var style = $$(this);
-      style.text(style.text()
-        .replace(/^[ \t]+/mg, '')
-        .replace(/[ \t]*\/\*(.|[\n\r])*?\*\//g, '')
-        .replace(/[\n\r]+/g, '\n')
-        .replace(/;[\n\r\t ]+/g, ';')
-        .replace(/,[\n\r\t ]+/g, ',')
-        .replace(/[ \t\n\r]+{/g, '{')
-        .replace(/{[ \t\n\r]+/g, '{')
-        .replace(/[ \t\n\r;]+}/g, '}')
-        .replace(/}[ \t\n\r]+/g, '}')
-        .replace(/:[ \t\n\r]+/g, ':'));
-    });
-  });
+  .pipe(cheerio, $ => $('style').each(function () {
+    let $style = $(this);
+    $style.text($style.text()
+      .replace(/^[ \t]+/mg, '')
+      .replace(/[ \t]*\/\*(.|[\n\r])*?\*\//g, '')
+      .replace(/[\n\r]+/g, '\n')
+      .replace(/;[\n\r\t ]+/g, ';')
+      .replace(/,[\n\r\t ]+/g, ',')
+      .replace(/[ \t\n\r]+{/g, '{')
+      .replace(/{[ \t\n\r]+/g, '{')
+      .replace(/[ \t\n\r;]+}/g, '}')
+      .replace(/}[ \t\n\r]+/g, '}')
+      .replace(/:[ \t\n\r]+/g, ':'));
+  }));
