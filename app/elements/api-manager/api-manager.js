@@ -66,39 +66,37 @@ let _calendarsLoading = true;
 // Element declaration
 //
 
-class APIManager {
-  beforeRegister() {
-    this.is = 'api-manager';
+Polymer({
+  is: 'api-manager',
 
-    this.properties = {
-      userInfo: {
-        type: Object,
-        notify: true,
-        value: LOADING_USER_INFO,
-      },
-      calendars: {
-        type: Object,
-        notify: true,
-        value: () => [ALL_CALENDAR],
-      },
-      hasHiddenCalendars: {
-        type: Boolean,
-        notify: true,
-        readOnly: true,
-        value: false,
-      },
-      showHiddenEvents: {
-        type: Boolean,
-      },
-      showHiddenCalendars: {
-        type: Boolean,
-      },
-    };
+  properties: {
+    userInfo: {
+      type: Object,
+      notify: true,
+      value: LOADING_USER_INFO,
+    },
+    calendars: {
+      type: Object,
+      notify: true,
+      value: () => [ALL_CALENDAR],
+    },
+    hasHiddenCalendars: {
+      type: Boolean,
+      notify: true,
+      readOnly: true,
+      value: false,
+    },
+    showHiddenEvents: {
+      type: Boolean,
+    },
+    showHiddenCalendars: {
+      type: Boolean,
+    },
+  },
 
-    this.observers = [
-      '_calendarsChanged(calendars.*)',
-    ];
-  }
+  observers: [
+    '_calendarsChanged(calendars.*)',
+  ],
 
   _calendarsChanged(changeRecord) {
     let allCalendarIndex = this.calendars.indexOf(ALL_CALENDAR);
@@ -115,7 +113,7 @@ class APIManager {
     } else if (calendarStateRE.test(changeRecord.path)) {
       this._updateAllCalendarState();
     }
-  }
+  },
 
   /**
    * Authenticate the user and do an initial load.
@@ -126,7 +124,7 @@ class APIManager {
     this._authorize(mode)
       .then(() => this._loadAllData())
       .catch(logError);
-  }
+  },
 
   /**
    * Remove all signed in UI.
@@ -136,7 +134,7 @@ class APIManager {
     this.calendars = [];
 
     // TODO: actually sign the user out
-  }
+  },
 
   /**
    * Clear cache and reload events for given calendar.
@@ -159,7 +157,7 @@ class APIManager {
 
     this._loadEvents(calendars)
       .catch(logError);
-  }
+  },
 
   /**
    * Update event's data on the server.
@@ -167,27 +165,27 @@ class APIManager {
    * @param {Object} params - Calendar and event ids as well as new starred
    *   and/or hidden state.
    */
-  patchEvent(params) {
-    this._singleSortEvent(params.eventId, params.calendarId);
+  patchEvent({ calendarId, eventId, starred, hidden }) {
+    this._singleSortEvent(eventId, calendarId);
     this._sendReAuthedRequest(
       loadedTickTockAPI
         .then(ticktock => ticktock.events.patch({
-          calendarId: encodeURIComponent(params.calendarId),
-          eventId: params.eventId,
-          starred: params.starred,
-          hidden: params.hidden,
+          calendarId: encodeURIComponent(calendarId),
+          eventId,
+          starred,
+          hidden,
         })))
       .catch(err => this._handleHTTPError(err))
       .catch(logError);
-  }
+  },
 
   /**
    * Update calendar's data on the server.
    *
    * @param {Object} params - Calendar id and new hidden state.
    */
-  patchCalendar(params) {
-    let calendar = this.getCalendarById(params.calendarId);
+  patchCalendar({ calendarId, hidden }) {
+    let calendar = this.getCalendarById(calendarId);
     let calendarKey = this._getCalendarKey(calendar);
     let allCalendarKey = this._getCalendarKey(ALL_CALENDAR);
 
@@ -207,12 +205,12 @@ class APIManager {
     this._sendReAuthedRequest(
       loadedTickTockAPI
         .then(ticktock => ticktock.calendars.patch({
-          calendarId: encodeURIComponent(params.calendarId),
-          hidden: params.hidden,
+          calendarId: encodeURIComponent(calendarId),
+          hidden,
         })))
       .catch(err => this._handleHTTPError(err))
       .catch(logError);
-  }
+  },
 
   getCalendarById(calendarId) {
     let foundCalendar = _calendars.all.find(calendar =>
@@ -220,7 +218,7 @@ class APIManager {
     );
 
     return foundCalendar || this._makeProxyCalendar(calendarId);
-  }
+  },
 
   deleteEventById(calendarId, eventId) {
     let calendar = this.getCalendarById(calendarId);
@@ -240,11 +238,11 @@ class APIManager {
         this.splice(['calendars', calendarKey, 'events'], i, 1);
       }
     }
-  }
+  },
 
   _getCalendarKey(calendar) {
     return Polymer.Collection.get(this.calendars).getKey(calendar);
-  }
+  },
 
   _authorize(mode) {
     return GAPIManager.authorize(mode)
@@ -258,7 +256,7 @@ class APIManager {
 
         throw err;
       });
-  }
+  },
 
   _loadAllData() {
     return Promise.all([
@@ -268,7 +266,7 @@ class APIManager {
         .then(calendars => this._loadEvents(calendars))
         .catch(err => this._handleHTTPError(err)),
     ]);
-  }
+  },
 
   _loadProfile() {
     return this._sendReAuthedRequest(
@@ -281,7 +279,7 @@ class APIManager {
         resp.signedOut = false;
         this.userInfo = resp;
       });
-  }
+  },
 
   _loadCalendars() {
     _calendarsLoading = true;
@@ -345,7 +343,7 @@ class APIManager {
 
         return calendars;
       });
-  }
+  },
 
   _loadEvents(calendars) {
     let timeZone;
@@ -401,7 +399,7 @@ class APIManager {
         });
     }))
       .then(() => this._updateAllCalendarEvents());
-  }
+  },
 
   _updateAllCalendarEvents() {
     let calendars = _calendars.all.slice();
@@ -415,7 +413,7 @@ class APIManager {
 
     events = events.sort(compareEvents);
     this.set(['calendars', allCalendarIndex, 'events'], events);
-  }
+  },
 
   _updateAllCalendarState() {
     let allCalendarIndex = this.calendars.indexOf(ALL_CALENDAR);
@@ -439,7 +437,7 @@ class APIManager {
 
     this.set(['calendars', allCalendarIndex, 'eventsLoading'], eventsLoading);
     this.set(['calendars', allCalendarIndex, 'eventsErrored'], eventsErrored);
-  }
+  },
 
   _handleHTTPError(err) {
     if (err instanceof GAPIManager.HTTPError) {
@@ -454,7 +452,7 @@ class APIManager {
     } else {
       throw err;
     }
-  }
+  },
 
   _sendReAuthedRequest(request) {
     return request
@@ -467,7 +465,7 @@ class APIManager {
           throw err;
         }
       });
-  }
+  },
 
   /**
    * Move an event to its proper place in its calendar and the ALL_CALENDAR.
@@ -483,7 +481,7 @@ class APIManager {
     if (calendar !== ALL_CALENDAR) {
       this._singleSortByCalendar(ALL_CALENDAR, eventId);
     }
-  }
+  },
 
   _singleSortByCalendar(calendar, eventId) {
     /************************
@@ -546,7 +544,7 @@ class APIManager {
         },
       ]);
     }
-  }
+  },
 
   _makeProxyCalendar(calendarId) {
     let proxy = {
@@ -571,8 +569,8 @@ class APIManager {
     _calendars.all.push(proxy);
     this.push('calendars', proxy);
     return proxy;
-  }
-}
+  },
+});
 
 //
 // Utility functions
@@ -643,11 +641,5 @@ function addObjectFields(object, fields) {
     }
   });
 }
-
-//
-// Element registration
-//
-
-Polymer(APIManager);
 
 })();

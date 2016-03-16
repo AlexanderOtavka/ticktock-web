@@ -2,9 +2,9 @@
 'use strict';
 
 // Imports are loaded and elements have been registered.
-window.addEventListener('WebComponentsReady', function () {
-  app.$.apiManager.signIn(true);
-});
+window.addEventListener('WebComponentsReady', () =>
+  app.$.apiManager.signIn(true)
+);
 
 //
 // Constants
@@ -58,10 +58,8 @@ app.getUrlDecoded = function (string) {
 
 app.getCalendarFilter = function (showHiddenCalendars) {
   if (!showHiddenCalendars) {
-    return function (calendar) {
-      return !calendar.hidden && !calendar.calendarLoading &&
-             !calendar.calendarErrored;
-    };
+    return calendar => !calendar.hidden && !calendar.calendarLoading &&
+                       !calendar.calendarErrored;
   } else {
     return null;
   }
@@ -141,9 +139,9 @@ app.toggleShowHiddenEvents = function () {
 };
 
 app.toggleShowHiddenCalendars = function () {
-  setTimeout(() => {
-    app.showHiddenCalendars = !app.showHiddenCalendars;
-  }, 20);
+  requestAnimationFrame(() =>
+    app.showHiddenCalendars = !app.showHiddenCalendars
+  );
 };
 
 app.showSigninPopup = function () {

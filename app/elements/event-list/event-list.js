@@ -1,25 +1,23 @@
 (function () {
 'use strict';
 
-class EventList {
-  beforeRegister() {
-    this.is = 'event-list';
+Polymer({
+  is: 'event-list',
 
-    this.properties = {
-      events: {
-        type: Array,
-        notify: true,
-      },
+  properties: {
+    events: {
+      type: Array,
+      notify: true,
+    },
 
-      // TODO: make openedIndex change when order changes
-      openedIndex: {
-        type: Number,
-        value: 0,
-      },
-      showHiddenEvents: Boolean,
-      showHiddenCalendars: Boolean,
-    };
-  }
+    // TODO: make openedIndex change when order changes
+    openedIndex: {
+      type: Number,
+      value: 0,
+    },
+    showHiddenEvents: Boolean,
+    showHiddenCalendars: Boolean,
+  },
 
   /**
    * Open an event by id.
@@ -31,22 +29,22 @@ class EventList {
     if (eventIndex !== -1) {
       this.openedIndex = eventIndex;
     }
-  }
+  },
 
   _isOpened(eventIndex, openedIndex) {
     return eventIndex === openedIndex;
-  }
+  },
 
   _getEventIndex(calendarId, eventId) {
     return this.events.findIndex(calendarEvent =>
       calendarEvent.eventId === eventId &&
       calendarEvent.calendarId === calendarId
     );
-  }
+  },
 
   _getDateInMs(dateString) {
     return Date.parse(dateString);
-  }
+  },
 
   _getFilter(showHiddenEvents, showHiddenCalendars) {
     if (!showHiddenEvents && !showHiddenCalendars) {
@@ -59,7 +57,7 @@ class EventList {
     } else {
       return null;
     }
-  }
+  },
 
   _onEventOpenToggled(event) {
     if (event.detail.opened) {
@@ -72,9 +70,7 @@ class EventList {
     } else {
       this.openedIndex = -1;
     }
-  }
-}
-
-Polymer(EventList);
+  },
+});
 
 })();

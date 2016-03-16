@@ -4,83 +4,79 @@
 const COLLAPSE_CONTENT_HEIGHT = 330;
 const MAX_TIMEOUT_DELAY = Math.pow(2, 31) - 1;
 
-class EventCard {
-  get behaviors() {
-    return [
-      Polymer.NeonAnimationRunnerBehavior,
-    ];
-  }
+Polymer({
+  is: 'event-card',
 
-  beforeRegister() {
-    this.is = 'event-card';
+  behaviors: [
+    Polymer.NeonAnimationRunnerBehavior,
+  ],
 
-    this.properties = {
-      eventId: String,
-      calendarId: String,
-      recurrenceId: String,
-      name: String,
-      startDateMs: Number,
-      endDateMs: Number,
-      first: {
-        type: Boolean,
-        reflectToAttribute: true,
-      },
-      opened: {
-        type: Boolean,
-        reflectToAttribute: true,
-      },
-      starred: {
-        type: Boolean,
-        reflectToAttribute: true,
-        notify: true,
-      },
-      eventHidden: {
-        type: Boolean,
-        reflectToAttribute: true,
-        notify: true,
-      },
-      calendarHidden: Boolean,
-      color: String,
-      link: String,
-      animationConfig: {
-        value() {
-          const getAnimationConfig = timing => [
-            {
-              name: 'event-collapse-expand-animation',
-              node: this.$.collapse,
-              maxHeight: COLLAPSE_CONTENT_HEIGHT,
-              timing: timing,
-            },
-            {
-              name: 'event-margin-expand-animation',
-              node: this.$.material,
-              isFirst: () => this.first,
-              timing: timing,
-            },
-          ];
+  properties: {
+    eventId: String,
+    calendarId: String,
+    recurrenceId: String,
+    name: String,
+    startDateMs: Number,
+    endDateMs: Number,
+    first: {
+      type: Boolean,
+      reflectToAttribute: true,
+    },
+    opened: {
+      type: Boolean,
+      reflectToAttribute: true,
+    },
+    starred: {
+      type: Boolean,
+      reflectToAttribute: true,
+      notify: true,
+    },
+    eventHidden: {
+      type: Boolean,
+      reflectToAttribute: true,
+      notify: true,
+    },
+    calendarHidden: Boolean,
+    color: String,
+    link: String,
+    animationConfig: {
+      value() {
+        const getAnimationConfig = timing => [
+          {
+            name: 'event-collapse-expand-animation',
+            node: this.$.collapse,
+            maxHeight: COLLAPSE_CONTENT_HEIGHT,
+            timing: timing,
+          },
+          {
+            name: 'event-margin-expand-animation',
+            node: this.$.material,
+            isFirst: () => this.first,
+            timing: timing,
+          },
+        ];
 
-          return {
-            open: getAnimationConfig({
-              duration: 200,
-              easing: 'ease-out',
-              direction: 'normal',
-            }),
-            close: getAnimationConfig({
-              duration: 200,
-              easing: 'ease-in',
-              direction: 'reverse',
-            }),
-          };
-        },
+        return {
+          open: getAnimationConfig({
+            duration: 200,
+            easing: 'ease-out',
+            direction: 'normal',
+          }),
+          close: getAnimationConfig({
+            duration: 200,
+            easing: 'ease-in',
+            direction: 'reverse',
+          }),
+        };
       },
-    };
+    },
+  },
 
-    this.observers = [
-      '_starChanged(starred)',
-      '_hideChanged(eventHidden)',
-      '_resetUpdater(startDateMs, endDateMs, opened)',
-    ];
-  }
+  observers: [
+    '_starChanged(starred)',
+    '_hideChanged(eventHidden)',
+    '_resetUpdater(startDateMs, endDateMs, opened)',
+  ],
 
   ready() {
     this._duration = 0;
@@ -89,7 +85,7 @@ class EventCard {
 
     // True for setTimeout, false for requestAnimationFrame.
     this._durationUpdaterIsTimeout = null;
-  }
+  },
 
   //
   // Actions
@@ -103,17 +99,17 @@ class EventCard {
       calendarId: this.calendarId,
       opened: opened,
     });
-  }
+  },
 
   toggleStar(event) {
     this.starred = !this.starred;
     event.stopPropagation();
-  }
+  },
 
   toggleHide(event) {
     this.eventHidden = !this.eventHidden;
     event.stopPropagation();
-  }
+  },
 
   _updateDuration(startDateMs, endDateMs, now) {
     let durationSeconds = (startDateMs - now) / 1000;
@@ -134,7 +130,7 @@ class EventCard {
     }
 
     this._duration = Math.floor(durationSeconds);
-  }
+  },
 
   //
   // Getters
@@ -142,38 +138,38 @@ class EventCard {
 
   _getElevation(opened) {
     return opened ? 2 : 1;
-  }
+  },
 
   _getIcon(calendarHidden) {
     return calendarHidden ? 'ticktock:calendar-hidden' :
                             'ticktock:calendar';
-  }
+  },
 
   _getIconFaded(eventHidden, calendarHidden) {
     return eventHidden || calendarHidden;
-  }
+  },
 
   _getMajorDurationMax(duration) {
     return getMajorDurationMax(duration);
-  }
+  },
 
   _getMinorDurationSegments(duration) {
     return getDurationSegments(duration).slice(1);
-  }
+  },
 
   // Text Getters
 
   _getNameSuffixText(isStartDuration) {
     return isStartDuration ? '' : 'Ends';
-  }
+  },
 
   _getMajorDurationText(duration) {
     return getDurationSegments(duration, false)[0];
-  }
+  },
 
   _getHideButtonText(eventHidden) {
     return eventHidden ? 'Unhide' : 'Hide';
-  }
+  },
 
   //
   // Observers
@@ -190,7 +186,7 @@ class EventCard {
         hidden: this.eventHidden,
       });
     }
-  }
+  },
 
   _hideChanged(hidden) {
     if (hidden && this.starred) {
@@ -203,7 +199,7 @@ class EventCard {
         hidden: this.eventHidden,
       });
     }
-  }
+  },
 
   _resetUpdater(startDateMs, endDateMs, opened) {
     if (this._durationUpdaterIsTimeout) {
@@ -235,7 +231,7 @@ class EventCard {
       updateDuration();
       this._durationUpdaterIsTimeout = true;
     }
-  }
+  },
 
   //
   // Event Handlers
@@ -243,8 +239,8 @@ class EventCard {
 
   _noPropagation(event) {
     event.stopPropagation();
-  }
-}
+  },
+});
 
 const S_IN_SECOND = 1;
 const S_IN_MINUTE = S_IN_SECOND * 60;
@@ -329,11 +325,5 @@ function getMajorDurationMax(seconds) {
 
   return 1;
 }
-
-//
-// Element registration
-//
-
-Polymer(EventCard);
 
 })();

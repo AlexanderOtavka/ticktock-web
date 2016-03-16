@@ -3,16 +3,12 @@
 (function () {
 'use strict';
 
-class EventCollapseExpandAnimation {
-  get behaviors() {
-    return [
-      Polymer.NeonAnimationBehavior,
-    ];
-  }
+Polymer({
+  is: 'event-collapse-expand-animation',
 
-  beforeRegister() {
-    this.is = 'event-collapse-expand-animation';
-  }
+  behaviors: [
+    Polymer.NeonAnimationBehavior,
+  ],
 
   configure(config) {
     this._effect = new KeyframeEffect(config.node, [
@@ -25,9 +21,7 @@ class EventCollapseExpandAnimation {
     ], this.timingFromConfig(config));
 
     return this._effect;
-  }
-}
-
-Polymer(EventCollapseExpandAnimation);
+  },
+});
 
 })();

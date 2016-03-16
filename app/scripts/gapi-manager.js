@@ -19,7 +19,18 @@ if (window.hasOwnProperty('GAPIManager')) {
   return;
 }
 
+let _scopes = [];
+let _clientId = '';
+let _loadedAPIs = [];
+
 let _onLoad;
+
+// Promise that resolves to the gapi object.
+let _loadedGAPI = new Promise(resolve => {
+  _onLoad = () => {
+    resolve(window.gapi);
+  };
+});
 
 /**
  * Base class for errors in GAPIManager.
@@ -62,19 +73,9 @@ class AuthError extends GAPIError {
   }
 }
 
-class GAPIManager {
-  constructor() {
-    this._scopes = [];
-    this._clientId = '';
-    this._loadedAPIs = [];
-
-    // Promise that resolves to the gapi object.
-    this._loadedGAPI = new Promise(resolve => {
-      _onLoad = () => {
-        resolve(window.gapi);
-      };
-    });
-  }
+let GAPIManager = {
+  HTTPError,
+  AuthError,
 
   /**
    * Load an api with the given data.
@@ -86,7 +87,7 @@ class GAPIManager {
    * @return Promise that resolves to an API object.
    */
   loadAPI(name, version, apiRoot) {
-    return this._loadedGAPI
+    return _loadedGAPI
       .then(_gapi => {
         let loadedAPI = new Promise((resolve, reject) => {
           _gapi.client.load(name, version, null, apiRoot).then(resp => {
@@ -100,10 +101,10 @@ class GAPIManager {
           });
         });
 
-        this._loadedAPIs.push(loadedAPI);
+        _loadedAPIs.push(loadedAPI);
         return loadedAPI;
       });
-  }
+  },
 
   /**
    * Finish loading all APIs set to load with APIManager.loadAPI.
@@ -112,8 +113,8 @@ class GAPIManager {
    *   have resolved.
    */
   loadAllAPIs() {
-    return Promise.all(this._loadedAPIs);
-  }
+    return Promise.all(_loadedAPIs);
+  },
 
   /**
    * Set scopes to authorize.
@@ -121,8 +122,8 @@ class GAPIManager {
    * This should be done before calling GAPIManager.authenticate().
    */
   setScopes(scopes) {
-    this._scopes = scopes;
-  }
+    _scopes = scopes;
+  },
 
   /**
    * Set client ID to authorize with.
@@ -130,8 +131,8 @@ class GAPIManager {
    * This should be done before calling GAPIManager.authenticate().
    */
   setClientId(clientId) {
-    this._clientId = clientId;
-  }
+    _clientId = clientId;
+  },
 
   /**
    * Authenticate with the clientId and scopes set previously.
@@ -139,11 +140,11 @@ class GAPIManager {
    * @return Promise that resolves with undefined when authenticated.
    */
   authorize(mode) {
-    return this._loadedGAPI
+    return _loadedGAPI
       .then(_gapi => new Promise((resolve, reject) => {
         _gapi.auth.authorize({
-          client_id: this._clientId,
-          scope: this._scopes,
+          client_id: _clientId,
+          scope: _scopes,
           immediate: mode,
           cookie_policy: window.location.origin,
         }, resp => {
@@ -156,15 +157,15 @@ class GAPIManager {
           }
         });
       }));
-  }
+  },
 
   /**
    * Sign the currently authed user out.
    */
   signOut() {
-    this._loadedGAPI.then(_gapi => _gapi.auth.signOut());
-  }
-}
+    _loadedGAPI.then(_gapi => _gapi.auth.signOut());
+  },
+};
 
 /**
  * Recursively crawl the API and return a modified copy that uses promises.
@@ -194,10 +195,7 @@ function _patchifyAPI(apiObject) {
   }
 }
 
-window.GAPIManager = new GAPIManager();
+window.GAPIManager = GAPIManager;
 window.__onGAPILoad__ = _onLoad;
-
-window.GAPIManager.HTTPError = HTTPError;
-window.GAPIManager.AuthError = AuthError;
 
 })();

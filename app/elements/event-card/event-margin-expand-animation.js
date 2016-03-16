@@ -3,16 +3,12 @@
 (function () {
 'use strict';
 
-class EventMarginExpandAnimation {
-  get behaviors() {
-    return [
-      Polymer.NeonAnimationBehavior,
-    ];
-  }
+Polymer({
+  is: 'event-margin-expand-animation',
 
-  beforeRegister() {
-    this.is = 'event-margin-expand-animation';
-  }
+  behaviors: [
+    Polymer.NeonAnimationBehavior,
+  ],
 
   configure(config) {
     this._effect = new KeyframeEffect(config.node, [
@@ -26,9 +22,7 @@ class EventMarginExpandAnimation {
       },
     ], this.timingFromConfig(config));
     return this._effect;
-  }
-}
-
-Polymer(EventMarginExpandAnimation);
+  },
+});
 
 })();
