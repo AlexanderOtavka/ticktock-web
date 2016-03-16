@@ -189,7 +189,7 @@ gulp.task('babel', () =>
       .pipe($.if('*.js', $.babel({
         presets: ['es2015'],
       })))
-      .on('error', err => {
+      .on('error', function (err) {
         console.log($.util.colors.red('[Babel Error]'));
         if (err.showStack) {
           console.log(err.stack);
