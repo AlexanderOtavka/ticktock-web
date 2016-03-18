@@ -122,9 +122,6 @@ gulp.task('copy', () => {
 
   let bower = gulp.src([
     'bower_components/**/*',
-
-    // Don't copy polyfills, useref will pick them up
-    '!bower_components/{webcomponentsjs,es5-shim,es6-promise-polyfill}/**/*',
     '!**/.DS_Store',
   ], {
     nodir: true,
@@ -211,7 +208,7 @@ gulp.task('babel', () =>
  */
 gulp.task('html', () =>
   gulp.src('dist/*.html')
-    .pipe($.useref({ searchPath: ['dist', 'app', '.'] }))
+    .pipe($.useref({ searchPath: 'dist' }))
     .pipe($.if('*.html', $tasks.htmlmin()))
     .pipe(gulp.dest('dist'))
     .pipe($.size({ title: 'html' }))
@@ -248,7 +245,7 @@ gulp.task('prune', () =>
     '!dist/elements/elements.{html,js}',
 
     // Keep SW stuff
-    '!dist/bower_components/{platinum-sw,sw-toolbox,promise-polyfill}/**/*',
+    '!dist/bower_components/{platinum-sw,sw-toolbox,promise-polyfill}/**',
   ])
 );
 
