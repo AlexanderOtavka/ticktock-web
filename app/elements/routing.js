@@ -1,6 +1,8 @@
 window.addEventListener('WebComponentsReady', function () {
   'use strict';
 
+  const app = Polymer.dom(document).querySelector('x-app');
+
   // We use Page.js for routing. This is a Micro
   // client-side router inspired by the Express router
   // More info: https://visionmedia.github.io/page.js/
@@ -12,7 +14,7 @@ window.addEventListener('WebComponentsReady', function () {
     eventList(DEFAULT_CALENDAR_ID);
   });
 
-  page(`/calendars/${escape(DEFAULT_CALENDAR_ID)}`, '/');
+  page(escape`/calendars/${DEFAULT_CALENDAR_ID}`, '/');
 
   page('/calendars/:calendarId', scrollToTop, data => {
     eventList(data.params.calendarId);
@@ -31,8 +33,13 @@ window.addEventListener('WebComponentsReady', function () {
   }
 
   // Utility functions
-  function escape(path) {
-    return path.replace(/[\*:\(\)]/g, '\\$&');
+  function escape(strings, ...paths) {
+    let result = [strings[0]];
+    paths.forEach((path, i) =>
+      result.push(String(path).replace(/[\*:\(\)]/g, '\\$&') + strings[i + 1])
+    );
+
+    return result.join('');
   }
 
   function eventList(selectedCalendar) {

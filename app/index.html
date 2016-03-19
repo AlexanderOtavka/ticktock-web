@@ -9,7 +9,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="generator" content="TickTock">
   <title>TickTock</title>
-  <link rel="icon" href="/favicon.ico?v=1">
+  <link rel="icon" href="favicon.ico?v=1">
 
   <!-- Chrome for Android theme color -->
   <meta name="theme-color" content="#d81b60">
@@ -47,15 +47,21 @@
   <script src="scripts/polyfills/raf-polyfill.js"></script>
   <script src="scripts/polyfills/object-values-polyfill.js"></script>
   <script src="bower_components/es6-promise-polyfill/promise.min.js"></script>
-  <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+  <script
+    src="bower_components/webcomponentsjs/webcomponents-lite.min.js">
+  </script>
   <!-- endbuild -->
 
   <!-- Endpoints client library and wrapper -->
   <script src="scripts/gapi-manager.js"></script>
-  <script src="https://apis.google.com/js/client.js?onload=__onGAPILoad__"></script>
+  <script
+    src="https://apis.google.com/js/client.js?onload=__onGAPILoad__">
+  </script>
 
+  <!-- All html imports, will be vulcanized -->
   <link rel="import" href="elements/elements.html">
 
+  <!-- Plain css, ignores style scoping -->
   <link rel="stylesheet" href="styles/main.css">
 
   <!-- For shared styles, shared-styles.html import in elements.html -->
@@ -65,237 +71,31 @@
 <body unresolved>
   <span id="browser-sync-binding"></span>
 
-  <template is="dom-bind" id="app">
+  <x-app></x-app>
 
-    <paper-drawer-panel id="paperDrawerPanel" responsive-width="840px">
-      <!-- Drawer -->
-      <div id="drawer" drawer>
-        <paper-menu
-          id="drawerMenu"
-          selectable="a"
-          attr-for-selected="data-route"
-          selected="[[route]]">
+  <!-- SW Stuff -->
+  <paper-toast
+    id="cachingComplete"
+    duration="6000"
+    text="Caching complete! This app will work offline.">
+  </paper-toast>
 
-          <div
-            id="userBar"
-            class$="[[getSignedOutClass(userInfo.signedOut)]]"
-            on-tap="showSigninPopup">
+  <platinum-sw-register
+    auto-register
+    clients-claim
+    skip-waiting
+    base-uri="bower_components/platinum-sw/bootstrap">
 
-            <div
-              id="userImage"
-              style$="background-image: url('[[userInfo.picture]]')">
-            </div>
-            <span id="userName">[[userInfo.name]]</span>
-          </div>
+    <platinum-sw-cache
+      default-cache-strategy="fastest"
+      cache-config-file="cache-config.json">
+    </platinum-sw-cache>
 
-          <template
-            is="dom-repeat"
-            items="{{calendars}}"
-            filter="{{getCalendarFilter(showHiddenCalendars)}}"
-            observe="hidden calendarLoading calendarErrored">
-
-            <a
-              href="/calendars/[[getUrlEncoded(item.calendarId)]]"
-              on-click="closeDrawer"
-              data-route$="eventList:[[item.calendarId]]">
-
-              <selectable-calendar
-                color="[[item.color]]"
-                icon="[[item.icon]]"
-                no-menu="[[item.noMenu]]"
-                name="[[item.name]]"
-                calendar-id="[[item.calendarId]]"
-                calendar-hidden="{{item.hidden}}"
-                on-calendar-hidden-changed="onCalendarHiddenToggled">
-              </selectable-calendar>
-            </a>
-          </template>
-
-          <div
-            id="showHiddenCalendars"
-            on-tap="toggleShowHiddenCalendars"
-            hidden="[[getHideHiddenCalendarToggle(hasHiddenCalendars, selectedCalendar.hidden)]]">
-
-            [[getHiddenCalendarToggleText(showHiddenCalendars)]]
-          </div>
-        </paper-menu>
-
-        <a
-          id="feedback"
-          target="_blank"
-          href="https://docs.google.com/forms/d/1AUPTrNIat7yyUahAsDZzd3uaQqHRKBPXT78llUyKecQ/viewform">
-
-          <paper-icon-item>
-            <iron-icon icon="icons:feedback" item-icon></iron-icon>
-            <span>Feedback</span>
-          </paper-item>
-        </a>
-      </div>
-
-      <!-- Main Area -->
-      <paper-scroll-header-panel id="mainArea" main fixed="[[!smallScreen]]">
-
-        <!-- Main Toolbar -->
-        <paper-toolbar id="mainToolbar">
-          <paper-icon-button
-            id="drawerToggle"
-            icon="menu"
-            paper-drawer-toggle>
-          </paper-icon-button>
-
-          <!-- Application name -->
-          <div class="title">[[selectedCalendar.name]]</div>
-
-          <!-- Toolbar icons -->
-          <paper-icon-button
-            icon="refresh"
-            hidden="[[smallScreen]]"
-            on-tap="refreshThisCalendar">
-          </paper-icon-button>
-
-          <!-- TODO: implement searching -->
-          <!-- <paper-icon-button icon="search"></paper-icon-button> -->
-
-          <dropdown-menu horizontal-offset="0" vertical-offset="0">
-            <paper-icon-button
-              icon="icons:more-vert"
-              class="dropdown-trigger">
-            </paper-icon-button>
-
-            <div class="dropdown-content">
-              <paper-item
-                hidden="[[!smallScreen]]"
-                on-tap="refreshThisCalendar">
-                Refresh
-              </paper-item>
-              <paper-item on-tap="toggleShowHiddenEvents">
-                [[getHiddenEventsToggleText(showHiddenEvents)]]
-              </paper-item>
-            </div>
-          </dropdown-menu>
-        </paper-toolbar>
-
-        <!-- Main Content -->
-        <div class="content">
-          <iron-pages attr-for-selected="page-name" selected="[[page]]">
-
-            <section page-name="eventList">
-              <div
-                id="signInButtonWrapper"
-                hidden="[[!userInfo.signedOut]]"
-                class="centered-content">
-
-                <paper-button
-                  id="signInButton"
-                  on-click="showSigninPopup">
-                  Sign In with Google
-                </paper-button>
-              </div>
-
-              <event-list
-                id="eventList"
-                events="{{selectedCalendar.events}}"
-                show-hidden-events="[[showHiddenEvents]]"
-                show-hidden-calendars="[[showHiddenCalendars]]"
-                hidden="[[userInfo.signedOut]]"
-                on-event-modified="onEventModified"
-                on-event-finish="onEventFinish">
-              </event-list>
-
-              <div
-                id="calendarErrored"
-                class="centered-content"
-                hidden="[[!getCalendarErrored(userInfo.signedOut, selectedCalendar.calendarErrored, selectedCalendar.eventsErrored)]]">
-
-                Oops... this calendar could not be loaded :(
-                <br>
-                <paper-button on-tap="refreshThisCalendar">
-                  Refresh
-                </paper-button>
-              </div>
-
-              <div
-                class="centered-content"
-                hidden="[[!getCalendarEmpty(userInfo.signedOut, selectedCalendar.calendarErrored, selectedCalendar.eventsErrored, selectedCalendar.eventsLoading, selectedCalendar.nextPageToken, selectedCalendar.events)]]">
-
-                Looks like there's nothing here.
-              </div>
-
-              <div
-                id="spinnerWrapper"
-                class="centered-content"
-                hidden="[[!getCalendarLoading(userInfo.signedOut, selectedCalendar.calendarErrored, selectedCalendar.eventsErrored, selectedCalendar.eventsLoading, selectedCalendar.nextPageToken)]]">
-
-                <paper-spinner active></paper-spinner>
-              </div>
-            </section>
-
-          </iron-pages>
-        </div>
-      </paper-scroll-header-panel>
-    </paper-drawer-panel>
-
-    <iron-media-query
-      query="max-width: 600px"
-      query-matches="{{smallScreen}}">
-    </iron-media-query>
-
-    <paper-toast
-      id="error"
-      duration="6000"
-      text="An error occurred.">
-    </paper-toast>
-
-    <paper-toast
-      id="networkError"
-      duration="6000"
-      text="There was a problem with the network.">
-    </paper-toast>
-
-    <calendar-selector
-      id="calendarSelector"
-      calendars="[[calendars]]"
-      selected-calendar="{{selectedCalendar}}"
-      on-selected-hidden-changed="onSelectedCalendarHiddenChanged">
-    </calendar-selector>
-
-    <api-manager
-      id="apiManager"
-      user-info="{{userInfo}}"
-      calendars="{{calendars}}"
-      has-hidden-calendars="{{hasHiddenCalendars}}"
-      show-hidden-events="[[showHiddenEvents]]"
-      show-hidden-calendars="[[showHiddenCalendars]]"
-      on-error="showErrorToast"
-      on-network-error="showNetworkErrorToast">
-    </api-manager>
-
-    <!-- SW Stuff -->
-    <paper-toast
-      id="cachingComplete"
-      duration="6000"
-      text="Caching complete! This app will work offline.">
-    </paper-toast>
-
-    <platinum-sw-register
-      auto-register
-      clients-claim
-      skip-waiting
-      base-uri="bower_components/platinum-sw/bootstrap"
-      on-service-worker-installed="showInstalledToast">
-
-      <platinum-sw-cache
-        default-cache-strategy="fastest"
-        cache-config-file="cache-config.json">
-      </platinum-sw-cache>
-
-      <platinum-sw-fetch
-        path="/_ah/api/(.*)"
-        handler="networkFirst">
-      </platinum-sw-fetch>
-    </platinum-sw-register>
-
-  </template>
+    <platinum-sw-fetch
+      path="/_ah/api/(.*)"
+      handler="networkFirst">
+    </platinum-sw-fetch>
+  </platinum-sw-register>
 
   <script src="scripts/app.js"></script>
 </body>
