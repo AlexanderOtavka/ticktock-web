@@ -42,20 +42,18 @@
   <!-- Shims and polyfills -->
   <!-- build:js scripts/polyfills/polyfills.js -->
   <script src="bower_components/es5-shim/es5-shim.min.js"></script>
-  <script src="scripts/polyfills/array-find-polyfill.js"></script>
-  <script src="scripts/polyfills/location-origin-polyfill.js"></script>
-  <script src="scripts/polyfills/raf-polyfill.js"></script>
-  <script src="scripts/polyfills/object-values-polyfill.js"></script>
+  <script src="scripts/polyfills/array-find.js"></script>
+  <script src="scripts/polyfills/location-origin.js"></script>
+  <script src="scripts/polyfills/raf.js"></script>
+  <script src="scripts/polyfills/object-values.js"></script>
   <script src="bower_components/es6-promise-polyfill/promise.min.js"></script>
-  <script
-    src="bower_components/webcomponentsjs/webcomponents-lite.min.js">
+  <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js">
   </script>
   <!-- endbuild -->
 
   <!-- Endpoints client library and wrapper -->
   <script src="scripts/gapi-manager.js"></script>
-  <script
-    src="https://apis.google.com/js/client.js?onload=__onGAPILoad__">
+  <script src="https://apis.google.com/js/client.js?onload=__onGAPILoad__">
   </script>
 
   <!-- All html imports, will be vulcanized -->
@@ -72,13 +70,6 @@
   <span id="browser-sync-binding"></span>
 
   <x-app></x-app>
-
-  <!-- SW Stuff -->
-  <paper-toast
-    id="cachingComplete"
-    duration="6000"
-    text="Caching complete! This app will work offline.">
-  </paper-toast>
 
   <platinum-sw-register
     auto-register
@@ -97,7 +88,11 @@
     </platinum-sw-fetch>
   </platinum-sw-register>
 
+  <!-- build:js scripts/scripts.js -->
+  <script src="bower_components/page/page.js"></script>
+  <script src="scripts/routing.js"></script>
   <script src="scripts/app.js"></script>
+  <!-- endbuild -->
 </body>
 
 </html>

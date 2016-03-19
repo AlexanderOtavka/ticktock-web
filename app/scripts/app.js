@@ -1,14 +1,14 @@
 (function () {
 'use strict';
 
-document.addEventListener('service-worker-installed', () => {
-  const swCache = Polymer.dom(document).querySelector('platinum-sw-cache');
-  const toast = Polymer.dom(document).querySelector('#cachingComplete');
+const app = Polymer.dom(document).querySelector('x-app');
+const swCache = Polymer.dom(document).querySelector('platinum-sw-cache');
 
+document.addEventListener('service-worker-installed', () => {
   // Check to make sure caching is actually enabled—it won't be in the dev
   // environment.
   if (!swCache.disabled) {
-    toast.show();
+    app.showToast('Caching complete! This app will work offline.');
   }
 });
 

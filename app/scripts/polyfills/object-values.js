@@ -1,3 +1,5 @@
+// from https://github.com/tc39/proposal-object-values-entries
+
 const reduce = Function.bind.call(Function.call, Array.prototype.reduce);
 const isEnumerable = Function.bind.call(Function.call,
   Object.prototype.propertyIsEnumerable);

@@ -1,5 +1,3 @@
-/* globals GAPIManager */
-
 (function () {
 'use strict';
 

@@ -42,10 +42,8 @@
       }, 16);
     };
 
-    if (!window.cancelAnimationFrame) {
-      window.cancelAnimationFrame = function (id) {
-        clearTimeout(id);
-      };
-    }
+    window.cancelAnimationFrame = function (id) {
+      clearTimeout(id);
+    };
   }
 }());

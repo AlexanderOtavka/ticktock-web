@@ -13,6 +13,10 @@ const CalendarStatus = {
   SIGNED_OUT: 4,
 };
 
+//
+// Element declaration
+//
+
 Polymer({
   is: 'x-app',
 
@@ -104,18 +108,17 @@ Polymer({
     this.$.mainArea.$.mainContainer.scrollTop = 0;
   },
 
+  showToast(message) {
+    this.$.toast.text = message;
+    this.$.toast.show();
+  },
+
   _showErrorToast() {
-    this._showToast('An error occurred.');
+    this.showToast('An error occurred.');
   },
 
   _showNetworkErrorToast() {
-    this._showToast('There was a problem with the network.');
-  },
-
-  _showToast(message) {
-    const toast = this.$$('paper-toast');
-    toast.text = message;
-    toast.show();
+    this.showToast('There was a problem with the network.');
   },
 
   /**
