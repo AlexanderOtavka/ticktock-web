@@ -16,8 +16,8 @@ GAPIManager.setScopes([
 ]);
 
 const LOCAL_API_ROOT = `//${window.location.host}/_ah/api`;
-const loadedTickTockAPI = GAPIManager.loadAPI('ticktock', 'v1', LOCAL_API_ROOT);
-const loadedOauth2API = GAPIManager.loadAPI('oauth2', 'v2');
+const ticktockAPILoaded = GAPIManager.loadAPI('ticktock', 'v1', LOCAL_API_ROOT);
+const oauth2APILoaded = GAPIManager.loadAPI('oauth2', 'v2');
 
 //
 // Constants
@@ -168,7 +168,7 @@ Polymer({
   patchEvent({ calendarId, eventId, starred, hidden }) {
     this._singleSortEvent(eventId, calendarId);
     this._sendReAuthedRequest(
-      loadedTickTockAPI
+      ticktockAPILoaded
         .then(ticktock => ticktock.events.patch({
           calendarId: encodeURIComponent(calendarId),
           eventId,
@@ -203,7 +203,7 @@ Polymer({
     });
 
     this._sendReAuthedRequest(
-      loadedTickTockAPI
+      ticktockAPILoaded
         .then(ticktock => ticktock.calendars.patch({
           calendarId: encodeURIComponent(calendarId),
           hidden,
@@ -270,7 +270,7 @@ Polymer({
 
   _loadProfile() {
     return this._sendReAuthedRequest(
-      loadedOauth2API
+      oauth2APILoaded
         .then(oauth2 => oauth2.userinfo.v2.me.get({
           fields: 'name,picture',
         })))
@@ -284,7 +284,7 @@ Polymer({
   _loadCalendars() {
     _calendarsLoading = true;
     return this._sendReAuthedRequest(
-      loadedTickTockAPI
+      ticktockAPILoaded
         .then(ticktock => ticktock.calendars.list({
           hidden: null,
         })))
@@ -362,7 +362,7 @@ Polymer({
       }
 
       return this._sendReAuthedRequest(
-        loadedTickTockAPI
+        ticktockAPILoaded
           .then(ticktock => ticktock.events.list({
             calendarId: encodeURIComponent(calendar.calendarId),
             hidden: null,

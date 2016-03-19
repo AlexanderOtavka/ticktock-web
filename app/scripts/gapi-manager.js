@@ -21,12 +21,12 @@ if (window.hasOwnProperty('GAPIManager')) {
 
 let _scopes = [];
 let _clientId = '';
-let _loadedAPIs = [];
+let _loadedAPIs = {};
 
 let _onLoad;
 
 // Promise that resolves to the gapi object.
-let _loadedGAPI = new Promise(resolve => {
+let _gapiLoaded = new Promise(resolve => {
   _onLoad = () => {
     resolve(window.gapi);
   };
@@ -87,21 +87,22 @@ let GAPIManager = {
    * @return Promise that resolves to an API object.
    */
   loadAPI(name, version, apiRoot) {
-    return _loadedGAPI
-      .then(_gapi => {
-        let loadedAPI = new Promise((resolve, reject) => {
-          _gapi.client.load(name, version, null, apiRoot).then(resp => {
+    let id = `${name} ${version} ${apiRoot}`;
+    return _loadedAPIs[id] || _gapiLoaded
+      .then(gapi => {
+        let loadedAPI = new Promise((resolve, reject) =>
+          gapi.client.load(name, version, null, apiRoot).then(resp => {
             if (resp && resp.error) {
               reject(new HTTPError(resp.error.code, resp.error.message));
-            } else if (!_gapi.client[name]) {
+            } else if (!gapi.client[name]) {
               reject(new HTTPError(404, 'Not Found.'));
             } else {
-              resolve(_patchifyAPI(_gapi.client[name]));
+              resolve(_patchifyAPI(gapi.client[name]));
             }
-          });
-        });
+          })
+        );
 
-        _loadedAPIs.push(loadedAPI);
+        _loadedAPIs[id] = loadedAPI;
         return loadedAPI;
       });
   },
@@ -113,7 +114,7 @@ let GAPIManager = {
    *   have resolved.
    */
   loadAllAPIs() {
-    return Promise.all(_loadedAPIs);
+    return Promise.all(_loadedAPIs.values());
   },
 
   /**
@@ -140,9 +141,9 @@ let GAPIManager = {
    * @return Promise that resolves with undefined when authenticated.
    */
   authorize(mode) {
-    return _loadedGAPI
-      .then(_gapi => new Promise((resolve, reject) => {
-        _gapi.auth.authorize({
+    return _gapiLoaded
+      .then(gapi => new Promise((resolve, reject) => {
+        gapi.auth.authorize({
           client_id: _clientId,
           scope: _scopes,
           immediate: mode,
@@ -163,7 +164,7 @@ let GAPIManager = {
    * Sign the currently authed user out.
    */
   signOut() {
-    _loadedGAPI.then(_gapi => _gapi.auth.signOut());
+    _gapiLoaded.then(gapi => gapi.auth.signOut());
   },
 };
 
