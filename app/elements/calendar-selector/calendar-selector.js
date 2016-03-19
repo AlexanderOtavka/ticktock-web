@@ -22,11 +22,10 @@ Polymer({
   ],
 
   select(calendar) {
-    // FIXME: linkPaths isn't working
     let collection = Polymer.Collection.get(this.calendars);
     let newKey = collection.getKey(calendar);
     this._setSelectedCalendar(calendar);
-    this.linkPaths('selectedCalendar', ['calendars', newKey]);
+    this.linkPaths('selectedCalendar', `calendars.${newKey}`);
   },
 
   _selectedHiddenChanged(hidden) {
