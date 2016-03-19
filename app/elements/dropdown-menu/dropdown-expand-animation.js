@@ -3,16 +3,12 @@
 (function () {
 'use strict';
 
-class DropdownExpandAnimation {
-  get behaviors() {
-    return [
-      Polymer.NeonAnimationBehavior,
-    ];
-  }
+Polymer({
+  is: 'dropdown-expand-animation',
 
-  beforeRegister() {
-    this.is = 'dropdown-expand-animation';
-  }
+  behaviors: [
+    Polymer.NeonAnimationBehavior,
+  ],
 
   configure(config) {
     let node = config.node;
@@ -22,9 +18,7 @@ class DropdownExpandAnimation {
       { height: `${height}px` },
     ], this.timingFromConfig(config));
     return this._effect;
-  }
-}
-
-Polymer(DropdownExpandAnimation);
+  },
+});
 
 })();
