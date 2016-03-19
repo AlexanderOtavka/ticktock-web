@@ -40,12 +40,11 @@ gulp.task('serve', ['jshint', 'jscs', 'babel'], () => {
     '/bower_components': 'bower_components',
   }));
 
-  gulp.watch(['app/**/*.html', '!bower_components/**/*.html'],
-             ['jshint', 'babel', browserSync.reload]);
-  gulp.watch(['app/{scripts,elements}/**/{*.js,*.html}'],
+  gulp.watch('app/**/*.html', ['jshint', 'babel', browserSync.reload]);
+  gulp.watch(['app/{scripts,elements}/**/*.js', 'app/*.js'],
              ['jshint', 'jscs', 'babel', browserSync.reload]);
-  gulp.watch(['app/{styles,elements}/**/*.css'], browserSync.reload);
-  gulp.watch(['app/images/**/*'], browserSync.reload);
+  gulp.watch('app/{styles,elements}/**/*.css', browserSync.reload);
+  gulp.watch('app/images/**/*', browserSync.reload);
 });
 
 /**
@@ -82,9 +81,7 @@ gulp.task('default', ['clean'], callback =>
  */
 gulp.task('jshint', () =>
   gulp.src([
-    'app/scripts/**/*.js',
-    'app/elements/**/*.js',
-    'app/elements/**/*.html',
+    'app/**/*.{js,html}',
     'gulpfile.js',
   ])
     .pipe($.jshint.extract('auto')) // Extract JS from .html files
@@ -97,12 +94,11 @@ gulp.task('jshint', () =>
  */
 gulp.task('jscs', () =>
   gulp.src([
-    'app/scripts/**/*.js',
-    'app/elements/**/*.js',
+    'app/**/*.js',
     'gulpfile.js',
   ])
     .pipe($.jscs())
-    .pipe($.jscs.reporter())
+    .pipe($.jscs.reporter('jscs-stylish'))
 );
 
 /**
@@ -176,7 +172,6 @@ gulp.task('fonts', () =>
 gulp.task('babel', () =>
   gulp.src([
     'app/**/*.{js,html}',
-    '!bower_components/**/*',
     '!app/test/**/*',
   ])
     .pipe($.changed('.tmp', { extension: '.js' }))
