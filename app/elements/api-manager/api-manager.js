@@ -53,6 +53,7 @@ const ALL_CALENDAR = {
 // Static Variables
 //
 
+// TODO: abstract away mutation with classes
 const _calendars = {
   all: [ALL_CALENDAR],
   unhidden: [ALL_CALENDAR],
@@ -89,6 +90,7 @@ Polymer({
     },
     showHiddenCalendars: {
       type: Boolean,
+      observer: '_showHiddenCalendarsChanged',
     },
   },
 
@@ -96,19 +98,20 @@ Polymer({
     '_calendarsChanged(calendars.*)',
   ],
 
+  _showHiddenCalendarsChanged() {
+    this.calendars = this.showHiddenCalendars ? _calendars.all :
+                                                _calendars.unhidden;
+  },
+
   _calendarsChanged(changeRecord) {
     let allCalendarIndex = this.calendars.indexOf(ALL_CALENDAR);
     let calendarsSplicesRE = new RegExp('^calendars$');
-    // let calendarEventsSplicesRE =
-    //   new RegExp('^calendars\\.#(?!' + allCalendarIndex + ')\\d+\\.events$');
     let calendarStateRE =
       new RegExp(`^calendars\\.#(?!${allCalendarIndex})\\d+\\.` +
-                 '(hidden|eventsErrored|eventsLoading)$');
+                 `(hidden|eventsErrored|eventsLoading)$`);
 
-    if (calendarsSplicesRE.test(changeRecord.path)) {
-      this._updateAllCalendarState();
-      this._updateAllCalendarEvents();
-    } else if (calendarStateRE.test(changeRecord.path)) {
+    if (calendarsSplicesRE.test(changeRecord.path) ||
+        calendarStateRE.test(changeRecord.path)) {
       this._updateAllCalendarState();
     }
   },
@@ -148,7 +151,9 @@ Polymer({
 
     let calendars;
     if (calendar === ALL_CALENDAR) {
-      calendars = this.calendars;
+      calendars = this.calendars.slice();
+      let i = calendars.findIndex(calendar => calendar === ALL_CALENDAR);
+      calendars.splice(i, 1);
     } else {
       calendars = [calendar];
     }
@@ -337,7 +342,11 @@ Polymer({
           }
         });
 
-        this.calendars = _calendars.all = _calendars.all.concat(calendars);
+        _calendars.all = _calendars.all.concat(calendars);
+        _calendars.unhidden = _calendars.all.filter(calendar =>
+          !calendar.hidden
+        );
+        this._showHiddenCalendarsChanged();
 
         return calendars;
       });
@@ -369,14 +378,22 @@ Polymer({
           })))
         .then(resp => {
           calendarKey = this._getCalendarKey(calendar);
+
+          calendar.nextPageToken = resp.nextPageToken || null;
+          if (calendarKey) {
+            this.notifyPath(['calendars', calendarKey, 'nextPageToken'],
+                            calendar.nextPageToken);
+          }
+
           if (resp.items) {
             resp.items.forEach(calendarEvent => {
               calendarEvent.color = calendar.color;
               calendarEvent.calendarHidden = calendar.hidden;
             });
 
+            calendar.events = resp.items;
             if (calendarKey) {
-              this.set(['calendars', calendarKey, 'events'], resp.items);
+              this.notifyPath(['calendars', calendarKey, 'events'], resp.items);
             }
 
             sortEvents(calendar);
@@ -395,29 +412,17 @@ Polymer({
             this.set(['calendars', calendarKey, 'eventsLoading'], false);
           }
         });
-    }))
-      .then(() => this._updateAllCalendarEvents());
-  },
-
-  _updateAllCalendarEvents() {
-    let calendars = _calendars.all.slice();
-    let allCalendarIndex = calendars.indexOf(ALL_CALENDAR);
-    calendars.splice(allCalendarIndex, 1);
-
-    let events = [];
-    calendars.forEach(calendar => {
-      events = events.concat(calendar.events);
-    });
-
-    events = events.sort(compareEvents);
-    this.set(['calendars', allCalendarIndex, 'events'], events);
+    }));
   },
 
   _updateAllCalendarState() {
-    let allCalendarIndex = this.calendars.indexOf(ALL_CALENDAR);
+    let calendars = this.calendars.slice();
+    let allCalendarIndex = calendars.indexOf(ALL_CALENDAR);
+    calendars.splice(allCalendarIndex, 1);
+
     let eventsLoading = (this.calendars.length - 1) ? false : _calendarsLoading;
     let eventsErrored = (this.calendars.length - 1) ? true : false;
-    this.calendars.forEach(calendar => {
+    calendars.forEach(calendar => {
       if (calendar !== ALL_CALENDAR) {
         if (calendar.eventsLoading) {
           eventsLoading = true;
@@ -435,6 +440,33 @@ Polymer({
 
     this.set(['calendars', allCalendarIndex, 'eventsLoading'], eventsLoading);
     this.set(['calendars', allCalendarIndex, 'eventsErrored'], eventsErrored);
+
+    let smallestDate = '';
+    calendars.forEach(calendar => {
+      if (calendar.events.length && calendar.nextPageToken) {
+        let lastEventDate = calendar.events[calendar.events.length - 1].endDate;
+        if (compareDateStrings(lastEventDate, smallestDate) < 0 ||
+            !smallestDate) {
+          smallestDate = lastEventDate;
+        }
+      }
+    });
+
+    let events = [];
+    calendars.forEach(calendar => {
+      // TODO: record this index
+      calendar.events.findIndex(calendarEvent => {
+        if (compareDateStrings(calendarEvent.endDate, smallestDate) > 0) {
+          return true;
+        } else {
+          events.push(calendarEvent);
+          return false;
+        }
+      });
+    });
+
+    events = events.sort(compareEvents);
+    this.set(['calendars', allCalendarIndex, 'events'], events);
   },
 
   _handleHTTPError(err) {
@@ -615,11 +647,15 @@ function compareStrings(a, b) {
   return a.localeCompare(b);
 }
 
+function compareDateStrings(a, b) {
+  return compareStrings(a, b);
+}
+
 function compareEvents(a, b) {
   // Sort order: starred, duration, alphabetical, id.
   return compareBools(a.starred, b.starred) ||
-         compareStrings(a.startDate || a.endDate,
-                        b.startDate || b.endDate) ||
+         compareDateStrings(a.startDate || a.endDate,
+                            b.startDate || b.endDate) ||
          compareStrings(a.name, b.name) ||
          compareStrings(a.eventId, b.eventId) ||
          0;

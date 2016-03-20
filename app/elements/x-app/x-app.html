@@ -63,7 +63,7 @@
           is="dom-repeat"
           items="{{calendars}}"
           filter="{{_getCalendarFilter(showHiddenCalendars)}}"
-          observe="hidden calendarLoading calendarErrored">
+          observe="calendarLoading calendarErrored">
 
           <a
             href="/calendars/[[getUrlEncoded(item.calendarId)]]"

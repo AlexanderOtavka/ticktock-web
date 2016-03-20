@@ -58,8 +58,7 @@ Polymer({
 
   _getCalendarFilter(showHiddenCalendars) {
     if (!showHiddenCalendars) {
-      return calendar => !calendar.hidden && !calendar.calendarLoading &&
-                         !calendar.calendarErrored;
+      return calendar => !calendar.calendarLoading && !calendar.calendarErrored;
     } else {
       return null;
     }
@@ -132,10 +131,12 @@ Polymer({
   },
 
   _toggleShowHiddenEvents() {
+    this.scrollPageToTop();
     this.showHiddenEvents = !this.showHiddenEvents;
   },
 
   _toggleShowHiddenCalendars() {
+    this.scrollPageToTop();
     requestAnimationFrame(() =>
       this.showHiddenCalendars = !this.showHiddenCalendars
     );
