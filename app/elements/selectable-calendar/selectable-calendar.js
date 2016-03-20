@@ -20,16 +20,8 @@ Polymer({
     noMenu: Boolean,
   },
 
-  attached() {
-    this.$$('dropdown-menu').onclick = event => {
-      event.stopPropagation();
-      return false;
-    };
-  },
-
-  toggleHide(event) {
+  toggleHide() {
     this.calendarHidden = !this.calendarHidden;
-    event.stopPropagation();
   },
 
   _getIcon(icon, calendarHidden) {

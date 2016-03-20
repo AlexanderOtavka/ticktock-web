@@ -50,11 +50,34 @@ Polymer({
       type: Boolean,
       notify: true,
     },
+    noPropagation: Boolean,
   },
 
-  open(event) {
+  listeners: {
+    tap: '_onTapped',
+  },
+
+  attached() {
+    this.onclick = event => {
+      if (this.noPropagation) {
+        event.stopPropagation();
+        return false;
+      }
+    };
+  },
+
+  open() {
     requestAnimationFrame(() => this.$.dropdown.open());
-    event.stopPropagation();
+  },
+
+  close() {
+    requestAnimationFrame(() => this.$.dropdown.close());
+  },
+
+  _onTapped(event) {
+    if (this.noPropagation) {
+      event.stopPropagation();
+    }
   },
 });
 

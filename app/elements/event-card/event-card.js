@@ -101,14 +101,12 @@ Polymer({
     });
   },
 
-  toggleStar(event) {
+  toggleStar() {
     this.starred = !this.starred;
-    event.stopPropagation();
   },
 
-  toggleHide(event) {
+  toggleHide() {
     this.eventHidden = !this.eventHidden;
-    event.stopPropagation();
   },
 
   _updateDuration(startDateMs, endDateMs, now) {
@@ -237,7 +235,8 @@ Polymer({
   // Event Handlers
   //
 
-  _noPropagation(event) {
+  _onStarButtonTapped(event) {
+    this.toggleStar();
     event.stopPropagation();
   },
 });

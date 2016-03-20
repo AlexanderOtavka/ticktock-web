@@ -176,10 +176,10 @@
       <paper-icon-button
         id="star"
         icon="icons:star"
-        on-tap="toggleStar">
+        on-tap="_onStarButtonTapped">
       </paper-icon-button>
 
-      <dropdown-menu horizontal-offset="8" vertical-offset="0">
+      <dropdown-menu horizontal-offset="8" no-propagation>
         <paper-icon-button
           icon="icons:more-vert"
           class="dropdown-trigger">
@@ -191,7 +191,7 @@
           </paper-item>
 
           <a href="[[link]]" target="_blank">
-            <paper-item on-tap="_noPropagation">
+            <paper-item>
               <div>Open in Google Calendar</div>
               <iron-icon class="right" icon="icons:open-in-new"></iron-icon>
             </paper-item>

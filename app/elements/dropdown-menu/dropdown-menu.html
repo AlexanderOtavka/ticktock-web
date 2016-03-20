@@ -32,7 +32,9 @@
     close-animation-config="[[closeAnimationConfig]]"
     opened="{{opened}}">
 
-    <content select=".dropdown-content"></content>
+    <div class="dropdown-content" on-tap="close">
+      <content select=".dropdown-content"></content>
+    </div>
   </iron-dropdown>
 </template>
 
