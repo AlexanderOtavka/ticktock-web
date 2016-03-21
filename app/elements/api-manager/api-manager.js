@@ -54,10 +54,7 @@ const ALL_CALENDAR = {
 //
 
 // TODO: abstract away mutation with classes
-const _calendars = {
-  all: [ALL_CALENDAR],
-  unhidden: [ALL_CALENDAR],
-};
+let _calendars = [ALL_CALENDAR];
 
 let _calendarsLoading = true;
 
@@ -90,7 +87,7 @@ Polymer({
     },
     showHiddenCalendars: {
       type: Boolean,
-      observer: '_showHiddenCalendarsChanged',
+      observer: '_filterCalendars',
     },
   },
 
@@ -98,21 +95,29 @@ Polymer({
     '_calendarsChanged(calendars.*)',
   ],
 
-  _showHiddenCalendarsChanged() {
-    this.calendars = this.showHiddenCalendars ? _calendars.all :
-                                                _calendars.unhidden;
+  _filterCalendars() {
+    if (this.showHiddenCalendars) {
+      this.calendars = _calendars;
+    } else {
+      this.calendars = _calendars.filter(calendar =>
+        !calendar.hidden
+      );
+    }
   },
 
   _calendarsChanged(changeRecord) {
     let allCalendarIndex = this.calendars.indexOf(ALL_CALENDAR);
     let calendarsSplicesRE = new RegExp('^calendars$');
-    let calendarStateRE =
-      new RegExp(`^calendars\\.#(?!${allCalendarIndex})\\d+\\.` +
-                 `(hidden|eventsErrored|eventsLoading)$`);
+    let calendarHiddenRE =
+      new RegExp(`^calendars\\.#(?!${allCalendarIndex})\\d+\\.hidden$`);
 
     if (calendarsSplicesRE.test(changeRecord.path) ||
-        calendarStateRE.test(changeRecord.path)) {
+        calendarHiddenRE.test(changeRecord.path)) {
       this._updateAllCalendarState();
+    }
+
+    if (calendarHiddenRE.test(changeRecord.path)) {
+      this._filterCalendars();
     }
   },
 
@@ -192,18 +197,20 @@ Polymer({
     let calendarKey = this._getCalendarKey(calendar);
     let allCalendarKey = this._getCalendarKey(ALL_CALENDAR);
 
-    calendar.events.forEach((calendarEvent, i) => {
-      this.set(['calendars', calendarKey, 'events', i, 'calendarHidden'],
-               calendar.hidden);
-    });
-
     ALL_CALENDAR.events.forEach((calendarEvent, i) => {
       if (calendarEvent.calendarId === calendar.calendarId) {
-        this.notifyPath(
-          ['calendars', allCalendarKey, 'events', i, 'calendarHidden'],
-          calendarEvent.calendarHidden);
+        this.set(['calendars', allCalendarKey, 'events', i, 'calendarHidden'],
+                 calendarEvent.calendarHidden);
       }
     });
+
+    if (calendarKey) {
+      calendar.events.forEach((calendarEvent, i) => {
+        this.notifyPath(
+          ['calendars', calendarKey, 'events', i, 'calendarHidden'],
+          calendar.hidden);
+      });
+    }
 
     this._sendReAuthedRequest(
       ticktockAPILoaded
@@ -216,7 +223,7 @@ Polymer({
   },
 
   getCalendarById(calendarId) {
-    let foundCalendar = _calendars.all.find(calendar =>
+    let foundCalendar = _calendars.find(calendar =>
       calendar.calendarId === calendarId
     );
 
@@ -296,12 +303,12 @@ Polymer({
         let calendars = resp.items || [];
         calendars.forEach((calendar, i) => {
           let duplicateKey;
-          let duplicateIndex = _calendars.all.findIndex(loadingCalendar =>
+          let duplicateIndex = _calendars.findIndex(loadingCalendar =>
             loadingCalendar.calendarId === calendar.calendarId
           );
 
           if (duplicateIndex !== -1) {
-            let duplicate = _calendars.all.splice(duplicateIndex, 1)[0];
+            let duplicate = _calendars.splice(duplicateIndex, 1)[0];
             duplicateKey = this._getCalendarKey(duplicate);
             updateObject(duplicate, calendar);
             calendar = duplicate;
@@ -336,17 +343,14 @@ Polymer({
         this._setHasHiddenCalendars(hasHiddenCalendars);
 
         _calendarsLoading = false;
-        _calendars.all.forEach(calendar => {
+        _calendars.forEach(calendar => {
           if (calendar.calendarLoading) {
             setCalendarToErrorState(calendar);
           }
         });
 
-        _calendars.all = _calendars.all.concat(calendars);
-        _calendars.unhidden = _calendars.all.filter(calendar =>
-          !calendar.hidden
-        );
-        this._showHiddenCalendarsChanged();
+        _calendars = _calendars.concat(calendars);
+        this._filterCalendars();
 
         return calendars;
       });
@@ -360,7 +364,7 @@ Polymer({
       timeZone = null;
     }
 
-    return Promise.all(calendars.map(calendar => {
+    let promise = Promise.all(calendars.map(calendar => {
       let calendarKey = this._getCalendarKey(calendar);
       if (calendarKey) {
         this.set(['calendars', calendarKey, 'events'], []);
@@ -412,7 +416,12 @@ Polymer({
             this.set(['calendars', calendarKey, 'eventsLoading'], false);
           }
         });
-    }));
+    }))
+      .then(() => this._updateAllCalendarState());
+
+    this._updateAllCalendarState();
+
+    return promise;
   },
 
   _updateAllCalendarState() {
@@ -454,7 +463,7 @@ Polymer({
 
     let events = [];
     calendars.forEach(calendar => {
-      // TODO: record this index
+      // TODO: record this index for use in grabbing the next page
       calendar.events.findIndex(calendarEvent => {
         if (compareDateStrings(calendarEvent.endDate, smallestDate) > 0) {
           return true;
@@ -596,7 +605,7 @@ Polymer({
       setCalendarToErrorState(proxy);
     }
 
-    _calendars.all.push(proxy);
+    _calendars.push(proxy);
     this.push('calendars', proxy);
     return proxy;
   },
