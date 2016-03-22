@@ -12,4 +12,6 @@ document.addEventListener('service-worker-installed', () => {
   }
 });
 
+window.app = app;
+
 })();
