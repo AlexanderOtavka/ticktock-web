@@ -24,6 +24,13 @@
   --default-primary-color: var(--primary-color);
 }
 
+body {
+  @apply(--layout-vertical);
+  @apply(--layout-fullbleed);
+  background: var(--primary-background-color);
+  color: var(--primary-text-color);
+}
+
 a {
   text-decoration: none;
   color: var(--primary-text-color);
