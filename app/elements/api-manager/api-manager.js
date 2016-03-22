@@ -168,6 +168,26 @@ Polymer({
   },
 
   /**
+   * Load the next page for a given calendar.
+   */
+  loadNextEvents(calendar) {
+    if (calendar.calendarErrored ||
+        calendar.eventsLoading ||
+        this.userInfo.signedOut) {
+      return;
+    }
+
+    // TODO: implement loading of next page
+    console.log(
+      `Loading next page for calendar with id = ${calendar.calendarId}`);
+
+    let calendarKey = this._getCalendarKey(calendar);
+    if (calendarKey) {
+      this.set(['calendars', calendarKey, 'eventsLoading'], true);
+    }
+  },
+
+  /**
    * Update event's data on the server.
    *
    * @param {Object} params - Calendar and event ids as well as new starred
