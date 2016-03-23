@@ -36,9 +36,9 @@ let _gapiLoaded = new Promise(resolve => {
  * Base class for errors in GAPIManager.
  */
 class GAPIError {
-  constructor(message, data) {
+  constructor(message, data = {}) {
     this.message = message;
-    this.data = (data === undefined) ? {} : data;
+    this.data = data;
   }
 }
 

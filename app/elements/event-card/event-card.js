@@ -285,8 +285,7 @@ function needsAnimationFrame(seconds) {
   return seconds && seconds <= S_IN_MINUTE;
 }
 
-function getDurationSegments(seconds, multiple) {
-  multiple = (multiple === undefined) ? true : multiple;
+function getDurationSegments(seconds, multiple = true) {
   let segments = [];
   let number;
   for (let i = 0, len = conversionFactors.length; i < len; i++) {

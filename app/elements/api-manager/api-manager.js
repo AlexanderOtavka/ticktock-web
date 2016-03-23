@@ -333,9 +333,8 @@ Polymer({
       }));
 
     return this._sendReAuthedRequest(apiRequest)
-      .then(resp => {
+      .then(({ items: calendars = [] }) => {
         let hasHiddenCalendars = false;
-        let calendars = resp.items || [];
         calendars.forEach((calendar, i) => {
           let duplicateKey;
           let duplicateIndex = _calendars.findIndex(loadingCalendar =>
@@ -350,12 +349,10 @@ Polymer({
             calendars.splice(i, 1, calendar);
           }
 
-          updateObject(calendar, {
-            calendarErrored: false,
-            calendarLoading: false,
-            icon: '',
-            noMenu: false,
-          });
+          calendar.calendarErrored = false;
+          calendar.calendarLoading = false;
+          calendar.icon = '';
+          calendar.noMenu = false;
 
           addObjectFields(calendar, {
             events: [],
@@ -416,24 +413,24 @@ Polymer({
         }));
 
       return this._sendReAuthedRequest(apiRequest)
-        .then(resp => {
+        .then(({ items, nextPageToken = null }) => {
           calendarKey = this._getCalendarKey(calendar);
 
-          calendar.nextPageToken = resp.nextPageToken || null;
+          calendar.nextPageToken = nextPageToken;
           if (calendarKey) {
             this.notifyPath(['calendars', calendarKey, 'nextPageToken'],
                             calendar.nextPageToken);
           }
 
-          if (resp.items) {
-            resp.items.forEach(calendarEvent => {
+          if (items) {
+            items.forEach(calendarEvent => {
               calendarEvent.color = calendar.color;
               calendarEvent.calendarHidden = calendar.hidden;
             });
 
-            calendar.events = resp.items;
+            calendar.events = items;
             if (calendarKey) {
-              this.notifyPath(['calendars', calendarKey, 'events'], resp.items);
+              this.notifyPath(['calendars', calendarKey, 'events'], items);
             }
 
             sortEvents(calendar);
@@ -651,10 +648,11 @@ Polymer({
 // Utility functions
 //
 
-function getEventIndexById(calendar, eventId, calendarId) {
+function getEventIndexById(calendar, eventId,
+                           calendarId = calendar.calendarId) {
   return calendar.events.findIndex(calendarEvent =>
     calendarEvent.eventId === eventId &&
-    calendarEvent.calendarId === (calendarId || calendar.calendarId)
+    calendarEvent.calendarId === calendarId
   );
 }
 
