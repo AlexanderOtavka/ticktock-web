@@ -125,27 +125,31 @@ Polymer({
    * Authenticate the user and do an initial load.
    *
    * @param {Boolean} mode - True suppresses the popup and uses the cookie.
+   * @return {Promise} - Promise that resolves on success.
    */
   signIn(mode) {
-    this._authorize(mode)
-      .then(() => this._loadAllData())
-      .catch(logError);
+    return this._authorize(mode)
+      .then(() => this._loadAllData());
   },
 
   /**
    * Remove all signed in UI.
+   *
+   * @return {Promise} - Promise that resolves on success.
    */
   signOut() {
     this.userInfo = SIGNED_OUT_USER_INFO;
     this.calendars = [];
 
     // TODO: actually sign the user out
+    return Promise.resolve();
   },
 
   /**
    * Clear cache and reload events for given calendar.
    *
    * @param {Object} calendar - Calendar data object to be reloaded.
+   * @return {Promise} - Promise that resolves to the new event list.
    */
   reloadEvents(calendar) {
     if (calendar.calendarErrored ||
@@ -163,12 +167,15 @@ Polymer({
       calendars = [calendar];
     }
 
-    this._loadEvents(calendars)
-      .catch(logError);
+    return this._loadEvents(calendars);
   },
 
   /**
    * Load the next page for a given calendar.
+   *
+   * @param {Object} calendar - Calendar data object whose next page will be
+   *   loaded.
+   * @return {Promise} - Promise that resolves to the new event list.
    */
   loadNextEvents(calendar) {
     if (calendar.calendarErrored ||
@@ -185,6 +192,9 @@ Polymer({
     if (calendarKey) {
       this.set(['calendars', calendarKey, 'eventsLoading'], true);
     }
+
+    // This promise will be pending forever
+    return new Promise(() => {});
   },
 
   /**
@@ -192,25 +202,28 @@ Polymer({
    *
    * @param {Object} params - Calendar and event ids as well as new starred
    *   and/or hidden state.
+   * @return {Promise} - Promise that resolves to the new event state.
    */
   patchEvent({ calendarId, eventId, starred, hidden }) {
     this._singleSortEvent(eventId, calendarId);
-    this._sendReAuthedRequest(
-      ticktockAPILoaded
-        .then(ticktock => ticktock.events.patch({
-          calendarId: encodeURIComponent(calendarId),
-          eventId,
-          starred,
-          hidden,
-        })))
-      .catch(err => this._handleHTTPError(err))
-      .catch(logError);
+
+    let apiRequest = ticktockAPILoaded
+      .then(ticktock => ticktock.events.patch({
+        calendarId: encodeURIComponent(calendarId),
+        eventId,
+        starred,
+        hidden,
+      }));
+
+    return this._sendReAuthedRequest(apiRequest)
+      .catch(err => this._handleHTTPError(err));
   },
 
   /**
    * Update calendar's data on the server.
    *
    * @param {Object} params - Calendar id and new hidden state.
+   * @return {Promise} - Promise that resolves to the new calendar state.
    */
   patchCalendar({ calendarId, hidden }) {
     let calendar = this.getCalendarById(calendarId);
@@ -232,14 +245,14 @@ Polymer({
       });
     }
 
-    this._sendReAuthedRequest(
-      ticktockAPILoaded
-        .then(ticktock => ticktock.calendars.patch({
-          calendarId: encodeURIComponent(calendarId),
-          hidden,
-        })))
-      .catch(err => this._handleHTTPError(err))
-      .catch(logError);
+    let apiRequest = ticktockAPILoaded
+      .then(ticktock => ticktock.calendars.patch({
+        calendarId: encodeURIComponent(calendarId),
+        hidden,
+      }));
+
+    return this._sendReAuthedRequest(apiRequest)
+      .catch(err => this._handleHTTPError(err));
   },
 
   getCalendarById(calendarId) {
@@ -299,11 +312,12 @@ Polymer({
   },
 
   _loadProfile() {
-    return this._sendReAuthedRequest(
-      oauth2APILoaded
-        .then(oauth2 => oauth2.userinfo.v2.me.get({
-          fields: 'name,picture',
-        })))
+    let apiRequest = oauth2APILoaded
+      .then(oauth2 => oauth2.userinfo.v2.me.get({
+        fields: 'name,picture',
+      }));
+
+    return this._sendReAuthedRequest(apiRequest)
       .then(resp => {
         resp.loading = false;
         resp.signedOut = false;
@@ -313,11 +327,12 @@ Polymer({
 
   _loadCalendars() {
     _calendarsLoading = true;
-    return this._sendReAuthedRequest(
-      ticktockAPILoaded
-        .then(ticktock => ticktock.calendars.list({
-          hidden: null,
-        })))
+    let apiRequest = ticktockAPILoaded
+      .then(ticktock => ticktock.calendars.list({
+        hidden: null,
+      }));
+
+    return this._sendReAuthedRequest(apiRequest)
       .then(resp => {
         let hasHiddenCalendars = false;
         let calendars = resp.items || [];
@@ -392,14 +407,15 @@ Polymer({
         this.set(['calendars', calendarKey, 'eventsLoading'], true);
       }
 
-      return this._sendReAuthedRequest(
-        ticktockAPILoaded
-          .then(ticktock => ticktock.events.list({
-            calendarId: encodeURIComponent(calendar.calendarId),
-            hidden: null,
-            maxResults: 10,
-            timeZone: timeZone,
-          })))
+      let apiRequest = ticktockAPILoaded
+        .then(ticktock => ticktock.events.list({
+          calendarId: encodeURIComponent(calendar.calendarId),
+          hidden: null,
+          maxResults: 10,
+          timeZone: timeZone,
+        }));
+
+      return this._sendReAuthedRequest(apiRequest)
         .then(resp => {
           calendarKey = this._getCalendarKey(calendar);
 
@@ -634,11 +650,6 @@ Polymer({
 //
 // Utility functions
 //
-
-function logError(err) {
-  console.error(err);
-  throw err;
-}
 
 function getEventIndexById(calendar, eventId, calendarId) {
   return calendar.events.findIndex(calendarEvent =>
