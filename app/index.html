@@ -39,20 +39,23 @@
     name="msapplication-TileImage"
     content="images/touch/ms-touch-icon-144x144-precomposed.png">
 
+  <!-- build:js scripts/head.js -->
+
   <!-- Shims and polyfills -->
-  <!-- build:js scripts/polyfills/polyfills.js -->
   <script src="bower_components/es5-shim/es5-shim.min.js"></script>
   <script src="scripts/polyfills/array-find.js"></script>
   <script src="scripts/polyfills/location-origin.js"></script>
   <script src="scripts/polyfills/raf.js"></script>
-  <script src="scripts/polyfills/object-values.js"></script>
   <script src="bower_components/es6-promise-polyfill/promise.min.js"></script>
   <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js">
   </script>
+
+  <!-- Endpoints client library wrapper -->
+  <script src="scripts/gapi-manager.js"></script>
+
   <!-- endbuild -->
 
-  <!-- Endpoints client library and wrapper -->
-  <script src="scripts/gapi-manager.js"></script>
+  <!-- Endpoints client library -->
   <script src="https://apis.google.com/js/client.js?onload=__onGAPILoad__">
   </script>
 
@@ -88,7 +91,7 @@
     </platinum-sw-fetch>
   </platinum-sw-register>
 
-  <!-- build:js scripts/scripts.js -->
+  <!-- build:js scripts/body.js -->
   <script src="bower_components/page/page.js"></script>
   <script src="scripts/routing.js"></script>
   <script src="scripts/app.js"></script>
