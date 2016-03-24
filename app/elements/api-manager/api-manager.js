@@ -281,18 +281,15 @@ Polymer({
   },
 
   _searchChanged(newSearch) {
-    clearTimeout(this._searchChangedTimeoutId);
-    this._searchChangedTimeoutId = setTimeout(() => {
-      // TODO: implement search filtering
-      console.log(`search changed to "${newSearch}"`);
-      if (newSearch) {
-        console.log('running clientside search (not really)');
-      } else if (newSearch === '') {
-        console.log('clearing event lists (not really)');
-      } else if (newSearch === null) {
-        console.log('removing search filter (not really)');
-      }
-    }, 3000);
+    // TODO: implement search filtering
+    console.log(`search changed to "${newSearch}"`);
+    if (newSearch) {
+      console.log('running clientside search (not really)');
+    } else if (newSearch === '') {
+      console.log('clearing event lists (not really)');
+    } else if (newSearch === null) {
+      console.log('removing search filter (not really)');
+    }
   },
 
   _calendarsChanged(changeRecord) {
