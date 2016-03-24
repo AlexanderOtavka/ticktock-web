@@ -112,11 +112,11 @@ Polymer({
     this.$.toast.show();
   },
 
-  _showErrorToast() {
+  showErrorToast() {
     this.showToast('An error occurred.');
   },
 
-  _showNetworkErrorToast() {
+  showNetworkErrorToast() {
     this.showToast('There was a problem with the network.');
   },
 

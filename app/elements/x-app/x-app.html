@@ -215,7 +215,7 @@
 
   <calendar-selector
     id="calendarSelector"
-    calendars="[[calendars]]"
+    calendars="{{calendars}}"
     selected-calendar="{{selectedCalendar}}"
     on-selected-hidden-changed="_onSelectedCalendarHiddenChanged">
   </calendar-selector>
@@ -227,8 +227,9 @@
     has-hidden-calendars="{{hasHiddenCalendars}}"
     show-hidden-events="[[showHiddenEvents]]"
     show-hidden-calendars="[[showHiddenCalendars]]"
-    on-error="_showErrorToast"
-    on-network-error="_showNetworkErrorToast">
+    search="[[search]]"
+    on-error="showErrorToast"
+    on-network-error="showNetworkErrorToast">
   </api-manager>
 
 </template>

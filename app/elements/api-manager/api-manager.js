@@ -89,37 +89,20 @@ Polymer({
       type: Boolean,
       observer: '_filterCalendars',
     },
+    search: {
+      type: String,
+      observer: '_searchChanged',
+      value: null,
+    },
   },
 
   observers: [
     '_calendarsChanged(calendars.*)',
   ],
 
-  _filterCalendars() {
-    if (this.showHiddenCalendars) {
-      this.calendars = _calendars;
-    } else {
-      this.calendars = _calendars.filter(calendar =>
-        !calendar.hidden
-      );
-    }
-  },
-
-  _calendarsChanged(changeRecord) {
-    let allCalendarIndex = this.calendars.indexOf(ALL_CALENDAR);
-    let calendarsSplicesRE = new RegExp('^calendars$');
-    let calendarHiddenRE =
-      new RegExp(`^calendars\\.#(?!${allCalendarIndex})\\d+\\.hidden$`);
-
-    if (calendarsSplicesRE.test(changeRecord.path) ||
-        calendarHiddenRE.test(changeRecord.path)) {
-      this._updateAllCalendarState();
-    }
-
-    if (calendarHiddenRE.test(changeRecord.path)) {
-      this._filterCalendars();
-    }
-  },
+  //
+  // Public api
+  //
 
   /**
    * Authenticate the user and do an initial load.
@@ -282,6 +265,55 @@ Polymer({
       }
     }
   },
+
+  //
+  // Observers
+  //
+
+  _filterCalendars() {
+    if (this.showHiddenCalendars) {
+      this.calendars = _calendars;
+    } else {
+      this.calendars = _calendars.filter(calendar =>
+        !calendar.hidden
+      );
+    }
+  },
+
+  _searchChanged(newSearch) {
+    clearTimeout(this._searchChangedTimeoutId);
+    this._searchChangedTimeoutId = setTimeout(() => {
+      // TODO: implement search filtering
+      console.log(`search changed to "${newSearch}"`);
+      if (newSearch) {
+        console.log('running clientside search (not really)');
+      } else if (newSearch === '') {
+        console.log('clearing event lists (not really)');
+      } else if (newSearch === null) {
+        console.log('removing search filter (not really)');
+      }
+    }, 3000);
+  },
+
+  _calendarsChanged(changeRecord) {
+    let allCalendarIndex = this.calendars.indexOf(ALL_CALENDAR);
+    let calendarsSplicesRE = new RegExp('^calendars$');
+    let calendarHiddenRE =
+      new RegExp(`^calendars\\.#(?!${allCalendarIndex})\\d+\\.hidden$`);
+
+    if (calendarsSplicesRE.test(changeRecord.path) ||
+        calendarHiddenRE.test(changeRecord.path)) {
+      this._updateAllCalendarState();
+    }
+
+    if (calendarHiddenRE.test(changeRecord.path)) {
+      this._filterCalendars();
+    }
+  },
+
+  //
+  // Utility methods
+  //
 
   _getCalendarKey(calendar) {
     return Polymer.Collection.get(this.calendars).getKey(calendar);
