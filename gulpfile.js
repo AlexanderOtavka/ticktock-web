@@ -13,19 +13,23 @@ http://polymer.github.io/PATENTS.txt
 'use strict';
 
 // Include Gulp & tools we'll use
-let gulp = require('gulp');
-let $ = require('gulp-load-plugins')();
-let $tasks = require('require-dir')('tasks', { camelcase: true });
-let browserSync = require('browser-sync');
-let del = require('del');
-let runSequence = require('run-sequence');
-let merge = require('merge-stream');
-let path = require('path');
-let fs = require('fs-promise');
-let globby = require('globby');
-let packageJson = require('./package.json');
-let crypto = require('crypto');
+const gulp = require('gulp');
+const $ = require('gulp-load-plugins')();
+const $tasks = require('require-dir')('tasks', { camelcase: true });
+const browserSync = require('browser-sync');
+const os = require('os');
+const del = require('del');
+const runSequence = require('run-sequence');
+const merge = require('merge-stream');
+const path = require('path');
+const fs = require('fs-promise');
+const globby = require('globby');
+const packageJson = require('./package.json');
+const crypto = require('crypto');
 
+// Define other constants
+const WINDOWS = /^win/.test(os.platform());
+const MAC = /^darwin$/.test(os.platform());
 const API_PORT = 8080;
 
 // Load tasks for web-component-tester
@@ -50,9 +54,22 @@ gulp.task('serve', ['jshint', 'jscs', 'babel'], () => {
 /**
  * Serve production build.
  */
-gulp.task('serve:dist', ['default'], () =>
-  browserSync.init($tasks.getServerConfig(5001, API_PORT, 'dist'))
-);
+gulp.task('serve:dist', ['default'], () => {
+  let testingBrowsers = [
+    'firefox',
+    'google chrome',
+    'opera',
+  ];
+
+  if (WINDOWS) {
+    testingBrowsers.push('iexplore');
+  } else if (MAC) {
+    testingBrowsers.push('safari');
+  }
+
+  browserSync.init($tasks.getServerConfig(5001, API_PORT, 'dist', {},
+                                          testingBrowsers));
+});
 
 /**
  * Push build output to dist branch so git submodule can pick it up.

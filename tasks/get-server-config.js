@@ -4,12 +4,13 @@ let historyApiFallback = require('connect-history-api-fallback');
 let proxy = require('proxy-middleware');
 let url = require('url');
 
-module.exports = (port, apiPort, baseDir, routes) => {
+module.exports = (port, apiPort, baseDir, routes, browser) => {
   let proxyOptions = url.parse(`http://localhost:${apiPort}/_ah`);
   proxyOptions.route = '/_ah';
 
   return {
     port,
+    browser: browser || 'default',
     notify: false,
     logPrefix: 'Tock',
     snippetOptions: {
