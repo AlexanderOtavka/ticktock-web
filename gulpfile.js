@@ -90,7 +90,8 @@ gulp.task('default', ['clean'], callback =>
     'vulcanize',
     'prune',
     'cache-config',
-    callback)
+    callback
+  )
 );
 
 /**
