@@ -6,7 +6,8 @@
 //
 
 GAPIManager.setClientId(
-  '208366307202-00824keo9p663g1uhkd8misc52e1c5pa.apps.googleusercontent.com');
+  '208366307202-00824keo9p663g1uhkd8misc52e1c5pa.apps.googleusercontent.com'
+);
 GAPIManager.setScopes([
   'https://www.googleapis.com/auth/userinfo.email',
   'https://www.googleapis.com/auth/plus.me',
@@ -54,9 +55,39 @@ const ALL_CALENDAR = {
 //
 
 // TODO: abstract away mutation with classes
+/*** MY THOUGHTS ON THE PROBLEM ***
+
+CHALLENGES (*) and solutions (-):
+* Loading events with the proper filters from the api
+  - EventLine class, which knows its filters
+  * Loading the next page, after filters change
+    - EventLines can be made for a set of filters
+  * Using the events I already have that fit those filters
+    - When an event line is created, it gets all the events it can from the two
+      permanent event lines, representing unhidden events and all events
+    * Minimizing the number of times I need to recalculate those events
+      - Keep the all and the unhidden event lines around, unhidden is the most
+        likely to be viewed, and all has the most data available
+* Modifying multiple arrays with similar data when one data point changes
+  - EventGroup class keeps track of three event lines per calendar: unhidden,
+    all, and virtual, which represents any extra filters applied, and will be
+    discarded when filters change
+  * Signaling modifications to the databinding system
+    - EventGroup holds a reference to the gapi-manager singleton.  It calls
+      appropriate updater methods.
+
+Note to self:
+EventGroup seems a little dubious, what with it holding a reference to the
+gapi-manager.  Consider functions on api-manager, which update the splices,
+but also call EventGroup methods.
+
+***********************************/
+
 let _calendars = [ALL_CALENDAR];
 
 let _calendarsLoading = true;
+
+let _instantiated = false;
 
 //
 // Element declaration
@@ -99,6 +130,18 @@ Polymer({
   observers: [
     '_calendarsChanged(calendars.*)',
   ],
+
+  //
+  // Lifecycle callbacks
+  //
+
+  created() {
+    if (!_instantiated) {
+      _instantiated = true;
+    } else {
+      throw new TypeError('gapi-manager element is meant to be a singleton.');
+    }
+  },
 
   //
   // Public api
@@ -169,7 +212,8 @@ Polymer({
 
     // TODO: implement loading of next page
     console.log(
-      `Loading next page for calendar with id = ${calendar.calendarId}`);
+      `Loading next page for calendar with id = ${calendar.calendarId}`
+    );
 
     let calendarKey = this._getCalendarKey(calendar);
     if (calendarKey) {
@@ -224,7 +268,8 @@ Polymer({
       calendar.events.forEach((calendarEvent, i) => {
         this.notifyPath(
           ['calendars', calendarKey, 'events', i, 'calendarHidden'],
-          calendar.hidden);
+          calendar.hidden
+        );
       });
     }
 
