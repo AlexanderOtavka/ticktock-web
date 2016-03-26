@@ -71,20 +71,21 @@ CHALLENGES (*) and solutions (-):
 * Modifying multiple arrays with similar data when one data point changes
   - EventGroup class keeps track of three event lines per calendar: unhidden,
     all, and virtual, which represents any extra filters applied, and will be
-    discarded when filters change
+    discarded when filters change.  EventGroup knows which line is in use.
   * Signaling modifications to the databinding system
-    - EventGroup holds a reference to the gapi-manager singleton.  It calls
-      appropriate updater methods.
+    - Add methods on api-manager, which update the splices, but also call
+      EventGroup updater methods.  These methods call the updater methods for
+      the EventGroups of both the event's calendar and the ALL_CALENDAR
+      EventGroup.
 
-Note to self:
-EventGroup seems a little dubious, what with it holding a reference to the
-gapi-manager.  Consider functions on api-manager, which update the splices,
-but also call EventGroup methods.
+Array mutators:
+* deleteEventById - Removes an item
+* _loadEvents - Concatenates on events
+* _singleSortEvent - Moves an item
 
 ***********************************/
 
 let _calendars = [ALL_CALENDAR];
-
 let _calendarsLoading = true;
 
 let _instantiated = false;
@@ -356,6 +357,29 @@ Polymer({
   //
   // Utility methods
   //
+
+  /**
+   * Like this.set, but to be used if calendarKey is unknown.
+   *
+   * @param {Object} calendar - Reference to the calendar.
+   * @param {String} propName
+   * @param propValue
+   */
+  _setCalendarProp() {
+    // TODO: implement _setCalendarProp
+  },
+
+  /**
+   * Like this.set, but to be used if calendarKey and eventKey are unknown.
+   *
+   * @param {Object} calendarEvent - Reference to the event.
+   * @param {String} propName
+   * @param propValue
+   * @param {(String|Number)} [calendarKey] - Index or key of calendar.
+   */
+  _setEventProp() {
+    // TODO: implement _setEventProp
+  },
 
   _getCalendarKey(calendar) {
     return Polymer.Collection.get(this.calendars).getKey(calendar);
