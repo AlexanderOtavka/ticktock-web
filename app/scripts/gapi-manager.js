@@ -172,7 +172,7 @@ let GAPIManager = {
  * Recursively crawl the API and return a modified copy that uses promises.
  */
 function _patchifyAPI(apiObject) {
-  if (apiObject instanceof Function) {
+  if (typeof apiObject === 'function') {
     return params => new Promise((resolve, reject) => {
       apiObject(params).execute(resp => {
         if (!resp) {
