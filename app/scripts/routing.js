@@ -35,9 +35,9 @@ window.addEventListener('WebComponentsReady', function () {
   // Utility functions
   function escape(strings, ...paths) {
     let result = [strings[0]];
-    paths.forEach((path, i) =>
-      result.push(String(path).replace(/[\*:\(\)]/g, '\\$&') + strings[i + 1])
-    );
+    paths.forEach((path, i) => {
+      result.push(String(path).replace(/[\*:\(\)]/g, '\\$&') + strings[i + 1]);
+    });
 
     return result.join('');
   }

@@ -264,17 +264,15 @@ Polymer({
 
     ALL_CALENDAR.events.forEach((calendarEvent, i) => {
       if (calendarEvent.calendarId === calendar.calendarId) {
-        this.set(['calendars', allCalendarKey, 'events', i, 'calendarHidden'],
+        this.set(`calendars.${allCalendarKey}.events.${i}.calendarHidden`,
                  calendarEvent.calendarHidden);
       }
     });
 
     if (calendarKey) {
       calendar.events.forEach((calendarEvent, i) => {
-        this.notifyPath(
-          ['calendars', calendarKey, 'events', i, 'calendarHidden'],
-          calendar.hidden
-        );
+        this.notifyPath(`calendars.${calendarKey}.events.${i}.calendarHidden`,
+                        calendar.hidden);
       });
     }
 
@@ -368,14 +366,14 @@ Polymer({
    */
   _setCalendarProps(calendar, props, key = this._getCalendarKey(calendar)) {
     let propNames = Object.keys(props);
-    propNames.forEach(name =>
-      calendar[name] = props[name]
-    );
+    propNames.forEach(name => {
+      calendar[name] = props[name];
+    });
 
     if (key !== null) {
-      propNames.forEach(name =>
-        this.notifyPath(`calendars.${key}.${name}`, props[name])
-      );
+      propNames.forEach(name => {
+        this.notifyPath(`calendars.${key}.${name}`, props[name]);
+      });
     }
   },
 
@@ -390,9 +388,9 @@ Polymer({
     });
 
     if (key) {
-      propNames.forEach(name =>
-        this.notifyPath(`calendars.${key}.${name}`, props[name])
-      );
+      propNames.forEach(name => {
+        this.notifyPath(`calendars.${key}.${name}`, props[name]);
+      });
     }
   },
 
@@ -522,24 +520,19 @@ Polymer({
         }));
 
       return this._sendReAuthedRequest(apiRequest)
-        .then(({ items, nextPageToken = null }) => {
+        .then(({ items: events, nextPageToken = null }) => {
           calendarKey = this._getCalendarKey(calendar);
 
-          calendar.nextPageToken = nextPageToken;
-          if (calendarKey) {
-            this.notifyPath(['calendars', calendarKey, 'nextPageToken'],
-                            calendar.nextPageToken);
-          }
+          this._setCalendarProps(calendar, { nextPageToken }, calendarKey);
 
-          if (items) {
-            items.forEach(calendarEvent => {
+          if (events) {
+            events.forEach(calendarEvent => {
               calendarEvent.color = calendar.color;
               calendarEvent.calendarHidden = calendar.hidden;
             });
 
-            this._setCalendarProps(calendar, { events: items }, calendarKey);
-
-            sortEvents(calendar);
+            events = events.sort(compareEvents);
+            this._setCalendarProps(calendar, { events }, calendarKey);
           }
         })
         .catch(err => {
@@ -759,18 +752,6 @@ function getEventIndexById(calendar, eventId,
     calendarEvent.eventId === eventId &&
     calendarEvent.calendarId === calendarId
   );
-}
-
-/**
- * Sort all of a calendar's events.
- *
- * Does not notify.
- *
- * @param {Object} calendar - The calendar object whose events should be
- *   sorted.
- */
-function sortEvents(calendar) {
-  calendar.events = calendar.events.sort(compareEvents);
 }
 
 function compareBools(a, b) {
