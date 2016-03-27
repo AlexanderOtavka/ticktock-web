@@ -10,3 +10,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 body {
   font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
+
+/* Browser Update Banner */
+
+#buorg {
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  width: auto;
+  border: none;
+  border-radius: 2px;
+  background-color: #333;
+  color: #fff;
+  font-size: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, .5);
+}
+
+#buorg > div {
+  padding: 14px 40px;
+}
+
+#buorg a {
+  color: white;
+}
+
+#buorg:hover a {
+  text-decoration: underline;
+}
+
+#buorg #buorgclose {
+  font-size: 18px;
+  padding: 12px 14px;
+  width: auto;
+  top: 0;
+  right: 0;
+}

@@ -9,6 +9,7 @@
     "fs-promise": "^0.5.0",
     "globby": "^4.0.0",
     "gulp": "^3.8.5",
+    "gulp-autoprefixer": "^3.1.0",
     "gulp-babel": "^6.1.2",
     "gulp-cache": "^0.4.2",
     "gulp-changed": "^1.0.0",

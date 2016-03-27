@@ -5,6 +5,18 @@
 
 This is the repository for the web client.  The repository for the API server is at <https://github.com/DHSDevelopersClub/ticktock>.  A production version is serving at <https://dhsdev-ticktock.appspot.com/>.
 
+### Supported Browsers
+
+- ie >= 10
+- ie_mob >= 10
+- ff >= 30
+- chrome >= 34
+- safari >= 7
+- opera >= 23
+- ios >= 7
+- android >= 4.4
+- bb >= 10
+
 ---
 
 ![](https://cloud.githubusercontent.com/assets/110953/7877439/6a69d03e-0590-11e5-9fac-c614246606de.png)

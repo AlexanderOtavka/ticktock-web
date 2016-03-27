@@ -30,7 +30,21 @@ const crypto = require('crypto');
 // Define other constants
 const WINDOWS = /^win/.test(os.platform());
 const MAC = /^darwin$/.test(os.platform());
+
 const API_PORT = 8080;
+
+const AUTOPREFIXER_BROWSERS = [
+  '> 1%',
+  'ie >= 10',
+  'ie_mob >= 10',
+  'ff >= 30',
+  'chrome >= 34',
+  'safari >= 7',
+  'opera >= 23',
+  'ios >= 7',
+  'android >= 4.4',
+  'bb >= 10',
+];
 
 // Load tasks for web-component-tester
 // Adds tasks for `gulp test:local` and `gulp test:remote`
@@ -39,7 +53,7 @@ require('web-component-tester').gulp.init(gulp);
 /**
  * Watch files for changes & reload.
  */
-gulp.task('serve', ['jshint', 'jscs', 'babel'], () => {
+gulp.task('serve', ['jshint', 'jscs', 'babel', 'styles'], () => {
   browserSync.init($tasks.getServerConfig(5000, API_PORT, ['.tmp', 'app'], {
     '/bower_components': 'bower_components',
   }));
@@ -47,7 +61,9 @@ gulp.task('serve', ['jshint', 'jscs', 'babel'], () => {
   gulp.watch('app/**/*.html', ['jshint', 'babel', browserSync.reload]);
   gulp.watch(['app/{scripts,elements}/**/*.js', 'app/*.js'],
              ['jshint', 'jscs', 'babel', browserSync.reload]);
-  gulp.watch('app/{styles,elements}/**/*.css', browserSync.reload);
+  gulp.watch('app/styles/**/*.css', ['styles', browserSync.reload]);
+  gulp.watch(['app/elements/**/*', '!app/elements/**/*.{html,js}'],
+             browserSync.reload);
   gulp.watch('app/images/**/*', browserSync.reload);
 });
 
@@ -157,6 +173,9 @@ gulp.task('copy', () => {
  */
 gulp.task('styles', () =>
   gulp.src('app/styles/**/*.css')
+    .pipe($.changed('.tmp/styles', { extension: '.css' }))
+    .pipe($.autoprefixer(AUTOPREFIXER_BROWSERS))
+    .pipe(gulp.dest('.tmp/styles'))
     .pipe($.cssmin())
     .pipe(gulp.dest('dist/styles'))
     .pipe($.size({ title: 'styles' }))
