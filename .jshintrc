@@ -12,11 +12,12 @@
   "unused": true,
   "newcap": false,
   "globals": {
+    "DEV": true,
+    "assert": true,
     "wrap": true,
     "unwrap": true,
     "Polymer": true,
     "Platform": true,
-    "page": true,
     "GAPIManager": true,
     "Promise": true
   }

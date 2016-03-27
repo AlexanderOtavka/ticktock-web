@@ -39,6 +39,10 @@
     name="msapplication-TileImage"
     content="images/touch/ms-touch-icon-144x144-precomposed.png">
 
+  <!-- build:remove -->
+  <script src="scripts/dev.js"></script>
+  <!-- endbuild -->
+
   <!-- build:js scripts/head.js -->
 
   <!-- Shims and polyfills -->
@@ -49,6 +53,12 @@
   <script src="bower_components/es6-promise-polyfill/promise.min.js"></script>
   <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js">
   </script>
+
+  <!-- Set DEV to false if it wasn't defined -->
+  <script src="scripts/production.js"></script>
+
+  <!-- Assert statement support in dev mode -->
+  <script src="scripts/assert.js"></script>
 
   <!-- Endpoints client library wrapper -->
   <script src="scripts/gapi-manager.js"></script>

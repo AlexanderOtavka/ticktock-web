@@ -242,6 +242,7 @@ gulp.task('html', () =>
   gulp.src('dist/*.html')
     .pipe($.useref({ searchPath: 'dist' }))
     .pipe($.if('*.html', $tasks.htmlmin()))
+    .pipe($.if('*.js', $.uglify()))
     .pipe(gulp.dest('dist'))
     .pipe($.size({ title: 'html' }))
 );

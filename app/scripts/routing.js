@@ -1,4 +1,6 @@
-window.addEventListener('WebComponentsReady', function () {
+/* globals page */
+
+window.addEventListener('WebComponentsReady', () => {
   'use strict';
 
   const app = Polymer.dom(document).querySelector('x-app');
