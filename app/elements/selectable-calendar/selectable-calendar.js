@@ -15,7 +15,7 @@ Polymer({
     calendarHidden: {
       type: Boolean,
       notify: true,
-      value: false,
+      reflectToAttribute: true,
     },
     noMenu: Boolean,
   },
@@ -31,10 +31,6 @@ Polymer({
 
   _getHideButtonText(calendarHidden) {
     return calendarHidden ? 'Unhide' : 'Hide';
-  },
-
-  _getHiddenClass(calendarHidden) {
-    return calendarHidden ? 'hidden' : '';
   },
 });
 

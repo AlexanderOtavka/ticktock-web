@@ -20,6 +20,10 @@ const CalendarStatus = {
 Polymer({
   is: 'x-app',
 
+  observers: [
+    '_selectedCalendarHiddenChanged(selectedCalendar.hidden)',
+  ],
+
   ready() {
     this.showHiddenCalendars = false;
     this.showHiddenEvents = false;
@@ -154,29 +158,22 @@ Polymer({
   },
 
   //
-  // Event handlers
+  // Observers
   //
 
-  _onSelectedCalendarHiddenChanged(event) {
-    if (event.detail.value) {
+  _selectedCalendarHiddenChanged(hidden) {
+    if (hidden) {
       this.showHiddenCalendars = true;
     }
   },
 
-  _onEventModified(event) {
-    this.$.apiManager.patchEvent(event.detail);
-  },
+  //
+  // Event handlers
+  //
 
   _onEventFinish(event) {
     this.$.apiManager.deleteEventById(event.detail.calendarId,
                                       event.detail.eventId);
-  },
-
-  _onCalendarHiddenToggled(event) {
-    this.$.apiManager.patchCalendar({
-      calendarId: event.target.calendarId,
-      hidden: event.detail.value,
-    });
   },
 });
 

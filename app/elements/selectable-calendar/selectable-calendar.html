@@ -27,15 +27,15 @@
     }
   }
 
-  .hidden {
-    opacity: 0.7;
-  }
-
   #name {
     @apply(--layout-flex);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  :host([calendar-hidden]) #name {
+    opacity: 0.7;
   }
 </style>
 
@@ -48,9 +48,7 @@
       item-icon>
     </calendar-icon>
 
-    <span id="name" class$="[[_getHiddenClass(calendarHidden)]]">
-      [[name]]
-    </span>
+    <span id="name">[[name]]</span>
 
     <dropdown-menu horizontal-align="left" hidden="[[noMenu]]" no-propagation>
 

@@ -76,8 +76,7 @@
               no-menu="[[item.noMenu]]"
               name="[[item.name]]"
               calendar-id="[[item.calendarId]]"
-              calendar-hidden="{{item.hidden}}"
-              on-calendar-hidden-changed="_onCalendarHiddenToggled">
+              calendar-hidden="{{item.hidden}}">
             </selectable-calendar>
           </a>
         </template>
@@ -169,7 +168,6 @@
               show-hidden-events="[[showHiddenEvents]]"
               show-hidden-calendars="[[showHiddenCalendars]]"
               hidden="[[userInfo.signedOut]]"
-              on-event-modified="_onEventModified"
               on-event-finish="_onEventFinish">
             </event-list>
 
@@ -216,8 +214,7 @@
   <calendar-selector
     id="calendarSelector"
     calendars="{{calendars}}"
-    selected-calendar="{{selectedCalendar}}"
-    on-selected-hidden-changed="_onSelectedCalendarHiddenChanged">
+    selected-calendar="{{selectedCalendar}}">
   </calendar-selector>
 
   <api-manager

@@ -17,19 +17,11 @@ Polymer({
     },
   },
 
-  observers: [
-    '_selectedHiddenChanged(selectedCalendar.hidden)',
-  ],
-
   select(calendar) {
     let collection = Polymer.Collection.get(this.calendars);
     let newKey = collection.getKey(calendar);
     this._setSelectedCalendar(calendar);
     this.linkPaths('selectedCalendar', `calendars.${newKey}`);
-  },
-
-  _selectedHiddenChanged(hidden) {
-    this.fire('selected-hidden-changed', { value: hidden });
   },
 
   _reselect() {

@@ -229,63 +229,6 @@ Polymer({
     return new Promise(() => {});
   },
 
-  /**
-   * Update event's data on the server.
-   *
-   * @param {Object} params - Calendar and event ids as well as new starred
-   *   and/or hidden state.
-   * @return {Promise} - Promise that resolves to the new event state.
-   */
-  patchEvent({ calendarId, eventId, starred, hidden }) {
-    this._singleSortEvent(eventId, calendarId);
-
-    let apiRequest = ticktockAPILoaded
-      .then(ticktock => ticktock.events.patch({
-        calendarId: encodeURIComponent(calendarId),
-        eventId,
-        starred,
-        hidden,
-      }));
-
-    return this._sendReAuthedRequest(apiRequest)
-      .catch(err => this._handleHTTPError(err));
-  },
-
-  /**
-   * Update calendar's data on the server.
-   *
-   * @param {Object} params - Calendar id and new hidden state.
-   * @return {Promise} - Promise that resolves to the new calendar state.
-   */
-  patchCalendar({ calendarId, hidden }) {
-    let calendar = this.getCalendarById(calendarId);
-    let calendarKey = this._getCalendarKey(calendar);
-    let allCalendarKey = this._getCalendarKey(ALL_CALENDAR);
-
-    ALL_CALENDAR.events.forEach((calendarEvent, i) => {
-      if (calendarEvent.calendarId === calendar.calendarId) {
-        this.set(`calendars.${allCalendarKey}.events.${i}.calendarHidden`,
-                 calendarEvent.calendarHidden);
-      }
-    });
-
-    if (calendarKey) {
-      calendar.events.forEach((calendarEvent, i) => {
-        this.notifyPath(`calendars.${calendarKey}.events.${i}.calendarHidden`,
-                        calendar.hidden);
-      });
-    }
-
-    let apiRequest = ticktockAPILoaded
-      .then(ticktock => ticktock.calendars.patch({
-        calendarId: encodeURIComponent(calendarId),
-        hidden,
-      }));
-
-    return this._sendReAuthedRequest(apiRequest)
-      .catch(err => this._handleHTTPError(err));
-  },
-
   getCalendarById(calendarId) {
     let foundCalendar = _calendars.find(calendar =>
       calendar.calendarId === calendarId
@@ -318,14 +261,6 @@ Polymer({
   // Observers
   //
 
-  _filterCalendars() {
-    if (this.showHiddenCalendars) {
-      this.calendars = _calendars;
-    } else {
-      this.calendars = _calendars.filter(calendar => !calendar.hidden);
-    }
-  },
-
   _searchChanged(newSearch) {
     // TODO: implement search filtering
     console.log(`search changed to "${newSearch}"`);
@@ -339,18 +274,65 @@ Polymer({
   },
 
   _calendarsChanged(changeRecord) {
-    let allCalendarIndex = this.calendars.indexOf(ALL_CALENDAR);
-    let calendarsSplicesRE = new RegExp('^calendars$');
-    let calendarHiddenRE =
-      new RegExp(`^calendars\\.#(?!${allCalendarIndex})\\d+\\.hidden$`);
+    let handlers = [
+      this._handleSpliceChange,
+      this._handleCalendarStateChange,
+      this._handleEventStateChange,
+    ];
 
-    if (calendarsSplicesRE.test(changeRecord.path) ||
-        calendarHiddenRE.test(changeRecord.path)) {
+    handlers.find(handler => handler.call(this, changeRecord));
+  },
+
+  _handleSpliceChange({ path }) {
+    if (path.search(/^calendars$/) !== -1) {
       this._updateAllCalendarState();
+      return true;
+    } else {
+      return false;
     }
+  },
 
-    if (calendarHiddenRE.test(changeRecord.path)) {
-      this._filterCalendars();
+  _handleCalendarStateChange({ path }) {
+    let collection = Polymer.Collection.get(this.calendars);
+    let result = path.match(/^calendars\.(#\d)+\.hidden$/);
+
+    if (result && result[1] !== collection.getKey(ALL_CALENDAR)) {
+      let calendar = collection.getItem(result[1]);
+
+      this._patchCalendar(calendar);
+      if (calendar.hidden) {
+        this._filterCalendars();
+      }
+
+      return true;
+    } else {
+      return false;
+    }
+  },
+
+  _handleEventStateChange({ path, value: propValue }) {
+    let result = path.match(
+      /^calendars\.#(\d+)\.events\.#(\d+)\.(hidden|starred)$/
+    );
+
+    if (result) {
+      let [, calendarIndex, eventIndex, propName] = result;
+      let calendar = this.calendars[calendarIndex];
+      let calendarEvent = calendar.events[eventIndex];
+
+      if (propName === 'starred' && propValue && calendarEvent.hidden) {
+        this.set(`calendars.${calendarIndex}.events.${eventIndex}.hidden`,
+                 false);
+      } else if (propName === 'hidden' && propValue && calendarEvent.starred) {
+        this.set(`calendars.${calendarIndex}.events.${eventIndex}.starred`,
+                 false);
+      } else {
+        this._patchEvent(calendarEvent);
+      }
+
+      return true;
+    } else {
+      return false;
     }
   },
 
@@ -396,6 +378,14 @@ Polymer({
 
   _getCalendarKey(calendar) {
     return Polymer.Collection.get(this.calendars).getKey(calendar) || null;
+  },
+
+  _filterCalendars() {
+    if (this.showHiddenCalendars) {
+      this.calendars = _calendars;
+    } else {
+      this.calendars = _calendars.filter(calendar => !calendar.hidden);
+    }
   },
 
   _authorize(mode) {
@@ -553,6 +543,63 @@ Polymer({
     return promise;
   },
 
+  /**
+   * Update event's data on the server.
+   *
+   * @param {Object} params - Calendar and event ids as well as new starred
+   *   and/or hidden state.
+   * @return {Promise} - Promise that resolves to the new event state.
+   */
+  _patchEvent({ calendarId, eventId, starred, hidden }) {
+    this._singleSortEvent(eventId, calendarId);
+
+    let apiRequest = ticktockAPILoaded
+      .then(ticktock => ticktock.events.patch({
+        calendarId: encodeURIComponent(calendarId),
+        eventId,
+        starred,
+        hidden,
+      }));
+
+    return this._sendReAuthedRequest(apiRequest)
+      .catch(err => this._handleHTTPError(err));
+  },
+
+  /**
+   * Update calendar's data on the server.
+   *
+   * @param {Object} params - Calendar id and new hidden state.
+   * @return {Promise} - Promise that resolves to the new calendar state.
+   */
+  _patchCalendar({ calendarId, hidden }) {
+    let calendar = this.getCalendarById(calendarId);
+    let calendarKey = this._getCalendarKey(calendar);
+    let allCalendarKey = this._getCalendarKey(ALL_CALENDAR);
+
+    ALL_CALENDAR.events.forEach((calendarEvent, i) => {
+      if (calendarEvent.calendarId === calendar.calendarId) {
+        this.set(`calendars.${allCalendarKey}.events.${i}.calendarHidden`,
+                 calendar.hidden);
+      }
+    });
+
+    if (calendarKey) {
+      calendar.events.forEach((calendarEvent, i) => {
+        this.notifyPath(`calendars.${calendarKey}.events.${i}.calendarHidden`,
+                        calendar.hidden);
+      });
+    }
+
+    let apiRequest = ticktockAPILoaded
+      .then(ticktock => ticktock.calendars.patch({
+        calendarId: encodeURIComponent(calendarId),
+        hidden,
+      }));
+
+    return this._sendReAuthedRequest(apiRequest)
+      .catch(err => this._handleHTTPError(err));
+  },
+
   _updateAllCalendarState() {
     let calendars = this.calendars.slice();
     let allCalendarIndex = calendars.indexOf(ALL_CALENDAR);
@@ -575,11 +622,6 @@ Polymer({
     if (eventsLoading) {
       eventsErrored = false;
     }
-
-    this._setCalendarProps(ALL_CALENDAR, {
-      eventsLoading,
-      eventsErrored,
-    }, allCalendarIndex);
 
     let smallestDate = '';
     calendars.forEach(calendar => {
@@ -606,7 +648,12 @@ Polymer({
     });
 
     events = events.sort(compareEvents);
-    this._setCalendarProps(ALL_CALENDAR, { events }, allCalendarIndex);
+
+    this._setCalendarProps(ALL_CALENDAR, {
+      eventsLoading,
+      eventsErrored,
+      events,
+    }, allCalendarIndex);
   },
 
   _handleHTTPError(err) {
