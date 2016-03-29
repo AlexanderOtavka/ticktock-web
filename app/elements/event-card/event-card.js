@@ -73,8 +73,6 @@ Polymer({
   },
 
   observers: [
-    '_starChanged(starred)',
-    '_hideChanged(eventHidden)',
     '_resetUpdater(startDateMs, endDateMs, opened)',
   ],
 
@@ -173,32 +171,6 @@ Polymer({
   // Observers
   //
 
-  _starChanged(starred) {
-    if (starred && this.eventHidden) {
-      this.eventHidden = false;
-    } else {
-      this.fire('event-modified', {
-        eventId: this.eventId,
-        calendarId: this.calendarId,
-        starred: this.starred,
-        hidden: this.eventHidden,
-      });
-    }
-  },
-
-  _hideChanged(hidden) {
-    if (hidden && this.starred) {
-      this.starred = false;
-    } else {
-      this.fire('event-modified', {
-        eventId: this.eventId,
-        calendarId: this.calendarId,
-        starred: this.starred,
-        hidden: this.eventHidden,
-      });
-    }
-  },
-
   _resetUpdater(startDateMs, endDateMs, opened) {
     if (this._durationUpdaterIsTimeout) {
       clearTimeout(this._durationUpdaterId);
@@ -207,7 +179,7 @@ Polymer({
     }
 
     if (opened || needsAnimationFrame(this._duration)) {
-      const updateDuration = () => {
+      let updateDuration = () => {
         this._updateDuration(startDateMs, endDateMs, Date.now());
         this._durationUpdaterId = requestAnimationFrame(updateDuration);
       };
@@ -215,7 +187,7 @@ Polymer({
       this._durationUpdaterId = requestAnimationFrame(updateDuration);
       this._durationUpdaterIsTimeout = false;
     } else {
-      const updateDuration = () => {
+      let updateDuration = () => {
         this._updateDuration(startDateMs, endDateMs, Date.now());
         let nextUpdate = getNextUpdate(this._duration);
         if (nextUpdate || !needsAnimationFrame(this._duration)) {
