@@ -1,6 +1,8 @@
 (function () {
 'use strict';
 
+const GAPIManager = Module.require('GAPIManager');
+
 //
 // API configuration
 //

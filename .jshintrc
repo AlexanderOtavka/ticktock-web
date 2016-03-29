@@ -14,11 +14,11 @@
   "globals": {
     "DEV": true,
     "assert": true,
+    "Module": true,
     "wrap": true,
     "unwrap": true,
     "Polymer": true,
     "Platform": true,
-    "GAPIManager": true,
     "Promise": true
   }
 }
