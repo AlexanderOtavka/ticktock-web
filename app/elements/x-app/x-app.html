@@ -19,6 +19,7 @@
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../bower_components/paper-item/paper-icon-item.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
 
 <!-- Custom Elements -->
 <link rel="import" href="../ticktock-icons/ticktock-icons.html">
@@ -117,15 +118,20 @@
         <div class="title">[[selectedCalendar.name]]</div>
 
         <!-- Toolbar icons -->
+        <!-- INDEV: implement searching -->
+        <div hidden="[[!searchOpen]]">
+            <paper-icon-button src="../../images/touch/ic_arrow_back_white_24px.svg" on-tap="_closeSearchInput"></paper-icon-button>
+            <paper-input label="Search"></paper-input>
+        </div>
+        
+        <paper-icon-button icon="search" on-tap="_openSearchInput" hidden="[[searchOpen]]"></paper-icon-button>  
+        
         <paper-icon-button
           icon="refresh"
           hidden="[[smallScreen]]"
           on-tap="_refreshThisCalendar">
         </paper-icon-button>
-
-        <!-- TODO: implement searching -->
-        <!-- <paper-icon-button icon="search"></paper-icon-button> -->
-
+        
         <dropdown-menu>
           <paper-icon-button
             icon="icons:more-vert"

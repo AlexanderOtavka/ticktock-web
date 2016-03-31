@@ -156,6 +156,16 @@ Polymer({
     this.$.apiManager.reloadEvents(this.selectedCalendar);
     this.$.eventList.openedIndex = 0;
   },
+  
+  _openSearchInput(){
+      console.log("Open");
+      this.searchOpen = true;
+  },
+  
+  _closeSearchInput(){
+      console.log("Close");
+      this.searchOpen = false;
+  },
 
   //
   // Observers
