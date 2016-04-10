@@ -1,8 +1,8 @@
 /* globals page */
 
-window.addEventListener('WebComponentsReady', () => {
-  'use strict';
+'use strict';
 
+window.addEventListener('WebComponentsReady', () => {
   const app = Polymer.dom(document).querySelector('x-app');
 
   // We use Page.js for routing. This is a Micro
@@ -11,7 +11,10 @@ window.addEventListener('WebComponentsReady', () => {
 
   const DEFAULT_CALENDAR_ID = '*';
 
+  //
   // Routes
+  //
+
   page('/', scrollToTop, () => {
     eventList(DEFAULT_CALENDAR_ID);
   });
@@ -22,19 +25,28 @@ window.addEventListener('WebComponentsReady', () => {
     eventList(data.params.calendarId);
   });
 
+  //
   // Config
+  //
+
   page({
     // add #! before urls
     hashbang: true,
   });
 
+  //
   // Middleware
+  //
+
   function scrollToTop(ctx, next) {
     app.scrollPageToTop();
     next();
   }
 
+  //
   // Utility functions
+  //
+
   function escape(strings, ...paths) {
     let result = [strings[0]];
     paths.forEach((path, i) => {

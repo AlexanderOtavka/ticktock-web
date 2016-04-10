@@ -1,4 +1,3 @@
-(function () {
 'use strict';
 
 Polymer({
@@ -33,5 +32,3 @@ Polymer({
     return calendarHidden ? 'Unhide' : 'Hide';
   },
 });
-
-})();

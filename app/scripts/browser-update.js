@@ -1,6 +1,6 @@
 'use strict';
 
-window.$buoop = {
+let config = {
   vs: {
     i: 9,
     f: 29,
@@ -13,14 +13,16 @@ window.$buoop = {
         'experience here.',
 };
 
-// jshint ignore:start
-// jscs:disable
-function $buo_f(){
- var e = document.createElement("script");
- e.src = "//browser-update.org/update.min.js";
- document.body.appendChild(e);
-};
-try {document.addEventListener("DOMContentLoaded", $buo_f,false)}
-catch(e){window.attachEvent("onload", $buo_f)}
-// jscs:enable
-// jshint ignore:end
+try {
+  document.addEventListener('DOMContentLoaded', loadBrowserUpdate, false);
+} catch (e) {
+  window.attachEvent('onload', loadBrowserUpdate);
+}
+
+function loadBrowserUpdate() {
+  let e = document.createElement('script');
+  e.src = 'https://browser-update.org/update.min.js';
+  document.body.appendChild(e);
+}
+
+window.$buoop = config;

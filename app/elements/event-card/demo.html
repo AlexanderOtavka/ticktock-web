@@ -44,8 +44,7 @@
   </template>
 
   <script>
-  /* globals demo */
-  (function () {
+    /* globals demo */
     'use strict';
 
     // jscs:disable disallowQuotedKeysInObjects, maximumLineLength
@@ -91,13 +90,12 @@
     demo.showHiddenEvents = true;
     demo.showHiddenCalendars = true;
 
-    demo.toggleItems = function () {
+    demo.toggleItems = () => {
       // demo.events = demo.events.length ? [] : ITEMS;
       demo.index++;
       demo.index %= ITEMS.length;
       demo.item = ITEMS[demo.index];
     };
-  })();
   </script>
 </body>
 

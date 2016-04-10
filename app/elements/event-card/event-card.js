@@ -1,4 +1,3 @@
-(function () {
 'use strict';
 
 const COLLAPSE_CONTENT_HEIGHT = 330;
@@ -295,5 +294,3 @@ function getMajorDurationMax(seconds) {
 
   return 1;
 }
-
-})();

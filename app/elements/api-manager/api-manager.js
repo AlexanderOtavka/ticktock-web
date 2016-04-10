@@ -1,4 +1,3 @@
-(function () {
 'use strict';
 
 //
@@ -830,5 +829,3 @@ function updateObject(object, newValues) {
     object[key] = newValues[key];
   });
 }
-
-})();

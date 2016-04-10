@@ -1,4 +1,3 @@
-(function () {
 'use strict';
 
 //
@@ -201,5 +200,3 @@ function getCalendarStatus(signedOut, calendarErrored, eventsErrored,
 
   return CalendarStatus.GOOD;
 }
-
-})();

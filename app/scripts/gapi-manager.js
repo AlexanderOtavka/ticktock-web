@@ -12,12 +12,8 @@
  *
  * @author Zander Otavka
  */
-(function () {
-'use strict';
 
-if (window.hasOwnProperty('GAPIManager')) {
-  return;
-}
+'use strict';
 
 let _scopes = [];
 let _clientId = '';
@@ -198,5 +194,3 @@ function _patchifyAPI(apiObject) {
 
 window.GAPIManager = GAPIManager;
 window.__onGAPILoad__ = _onLoad;
-
-})();

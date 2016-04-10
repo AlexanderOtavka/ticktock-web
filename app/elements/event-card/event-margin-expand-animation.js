@@ -1,6 +1,5 @@
 /* globals KeyframeEffect */
 
-(function () {
 'use strict';
 
 Polymer({
@@ -24,5 +23,3 @@ Polymer({
     return this._effect;
   },
 });
-
-})();

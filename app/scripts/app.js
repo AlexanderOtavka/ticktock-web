@@ -1,6 +1,6 @@
-window.addEventListener('WebComponentsReady', () => {
-  'use strict';
+'use strict';
 
+window.addEventListener('WebComponentsReady', () => {
   const app = Polymer.dom(document).querySelector('x-app');
   const swCache = Polymer.dom(document).querySelector('platinum-sw-cache');
 

@@ -1,4 +1,3 @@
-(function () {
 'use strict';
 
 Polymer({
@@ -28,5 +27,3 @@ Polymer({
     this.select(this.selectedCalendar);
   },
 });
-
-})();
