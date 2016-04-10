@@ -1,5 +1,7 @@
 'use strict';
 
+const { GAPIManager } = ticktock;
+
 //
 // API configuration
 //

@@ -1,3 +1,5 @@
-if (window.DEV === undefined) {
-  window.DEV = false;
+'use strict';
+
+if (!ticktock.hasOwnProperty('DEV')) {
+  ticktock.DEV = false;
 }

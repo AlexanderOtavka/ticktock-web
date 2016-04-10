@@ -192,5 +192,6 @@ function _patchifyAPI(apiObject) {
   }
 }
 
-window.GAPIManager = GAPIManager;
+ticktock.GAPIManager = GAPIManager;
+
 window.__onGAPILoad__ = _onLoad;
