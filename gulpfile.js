@@ -98,7 +98,7 @@ gulp.task('deploy', ['default'], () =>
 /**
  * Build production files, the default task.
  */
-gulp.task('default', ['clean'], callback =>
+gulp.task('default', ['clean'], callback => {
   runSequence(
     ['jshint', 'jscs', 'copy'],
     ['styles', 'images', 'fonts', 'babel'],
@@ -107,8 +107,8 @@ gulp.task('default', ['clean'], callback =>
     'prune',
     'cache-config',
     callback
-  )
-);
+  );
+});
 
 /**
  * Lint JavaScript.
@@ -216,7 +216,28 @@ gulp.task('babel', () =>
       // Extract JS from .html files
       .pipe($.if('*.html', $.crisper({ scriptInHead: false })))
       .pipe($.if('*.js', $.babel({
-        presets: ['es2015'],
+        plugins: [
+          'iife-wrap',
+          'transform-es2015-template-literals',
+          'transform-es2015-literals',
+          'transform-es2015-function-name',
+          'transform-es2015-arrow-functions',
+          'transform-es2015-block-scoped-functions',
+          'transform-es2015-classes',
+          'transform-es2015-object-super',
+          'transform-es2015-shorthand-properties',
+          'transform-es2015-duplicate-keys',
+          'transform-es2015-computed-properties',
+          'transform-es2015-for-of',
+          'transform-es2015-sticky-regex',
+          'transform-es2015-unicode-regex',
+          'check-es2015-constants',
+          'transform-es2015-spread',
+          'transform-es2015-parameters',
+          'transform-es2015-destructuring',
+          'transform-es2015-block-scoping',
+          ['transform-regenerator', { async: false, asyncGenerators: false }],
+        ],
       })))
       .on('error', function (err) {
         console.log($.util.colors.red('[Babel Error]'));
