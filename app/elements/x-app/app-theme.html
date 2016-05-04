@@ -2,7 +2,7 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 
 <dom-module id="app-theme">
-<template>
+  <template>
 <style>
 
 :host {
@@ -115,7 +115,6 @@ paper-spinner {
 }
 
 #showHiddenCalendars {
-  @apply(--layout);
   @apply(--layout-center-center);
   font-size: .8rem;
   text-transform: uppercase;
@@ -187,8 +186,7 @@ for more on material design breakpoints.
 */
 
 /* Small */
-@media (max-width: 600px) {
-
+@media (max-width: 600px) {  
   #spinnerWrapper {
     margin-bottom: 48px;
   }

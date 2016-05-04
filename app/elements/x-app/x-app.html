@@ -5,6 +5,8 @@
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
+<link rel="import" href="../../bower_components/iron-input/iron-input.html">
+
 
 <!-- Paper elements -->
 <link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
@@ -29,15 +31,16 @@
 <link rel="import" href="../event-list/event-list.html">
 <link rel="import" href="../api-manager/api-manager.html">
 <link rel="import" href="../calendar-selector/calendar-selector.html">
+<link rel="import" href="../search-bar/search-bar.html">
 
 <!-- Styles -->
 <link rel="import" href="app-theme.html">
 
 <dom-module id="x-app">
 
-<style include="app-theme"></style>
+  <style include="app-theme"></style>
 
-<template>
+  <template>
 
   <paper-drawer-panel id="paperDrawerPanel" responsive-width="840px">
     <!-- Drawer -->
@@ -82,161 +85,112 @@
           </a>
         </template>
 
-        <div
-          id="showHiddenCalendars"
-          on-tap="_toggleShowHiddenCalendars"
-          hidden="[[_getHideHiddenCalendarToggle(hasHiddenCalendars, selectedCalendar.hidden)]]">
+  <div id="showHiddenCalendars" on-tap="_toggleShowHiddenCalendars" hidden="[[_getHideHiddenCalendarToggle(hasHiddenCalendars, selectedCalendar.hidden)]]">
 
-          [[_getHiddenCalendarToggleText(showHiddenCalendars)]]
-        </div>
-      </paper-menu>
+    [[_getHiddenCalendarToggleText(showHiddenCalendars)]]
+  </div>
+  </paper-menu>
 
-      <a
-        id="feedback"
-        target="_blank"
-        href="https://docs.google.com/forms/d/1AUPTrNIat7yyUahAsDZzd3uaQqHRKBPXT78llUyKecQ/viewform">
+  <a id="feedback" target="_blank" href="https://docs.google.com/forms/d/1AUPTrNIat7yyUahAsDZzd3uaQqHRKBPXT78llUyKecQ/viewform">
 
-        <paper-icon-item>
-          <iron-icon icon="icons:feedback" item-icon></iron-icon>
-          <span>Feedback</span>
-        </paper-item>
-      </a>
-    </div>
+    <paper-icon-item>
+      <iron-icon icon="icons:feedback" item-icon></iron-icon>
+      <span>Feedback</span>
+      </paper-item>
+  </a>
+  </div>
 
-    <!-- Main Area -->
-    <paper-scroll-header-panel id="mainArea" main fixed="[[!smallScreen]]">
+  <!-- Main Area -->
+  <paper-scroll-header-panel id="mainArea" main fixed="[[!smallScreen]]">
 
-      <!-- Main Toolbar -->
-      <paper-toolbar id="mainToolbar">
-        <paper-icon-button
-          id="drawerToggle"
-          icon="menu"
-          paper-drawer-toggle>
+    <!-- Main Toolbar -->
+    <paper-toolbar id="mainToolbar">
+      <paper-icon-button id="drawerToggle" icon="menu" paper-drawer-toggle>
+      </paper-icon-button>
+
+      <!-- Application name -->
+      <div class="title">[[selectedCalendar.name]]{{searchValue}}</div>
+      
+      <!-- Toolbar icons -->
+      <!-- INDEV: implement searching -->
+      <search-bar id="searchBar" searchValue="{{searchValue}}"></search-bar>
+      
+      <paper-icon-button icon="search" on-tap="_openSearchBar" hidden="[[searchOpen]]"></paper-icon-button>
+
+      <paper-icon-button icon="refresh" hidden="[[smallScreen]]" on-tap="_refreshThisCalendar">
+      </paper-icon-button>
+
+      <dropdown-menu>
+        <paper-icon-button icon="icons:more-vert" class="dropdown-trigger">
         </paper-icon-button>
 
-        <!-- Application name -->
-        <div class="title">[[selectedCalendar.name]]</div>
-
-        <!-- Toolbar icons -->
-        <!-- INDEV: implement searching -->
-        <div hidden="[[!searchOpen]]">
-            <paper-icon-button src="../../images/touch/ic_arrow_back_white_24px.svg" on-tap="_closeSearchInput"></paper-icon-button>
-            <paper-input label="Search"></paper-input>
+        <div class="dropdown-content">
+          <paper-item hidden="[[!smallScreen]]" on-tap="_refreshThisCalendar">
+            Refresh
+          </paper-item>
+          <paper-item on-tap="_toggleShowHiddenEvents">
+            [[_getHiddenEventsToggleText(showHiddenEvents)]]
+          </paper-item>
         </div>
-        
-        <paper-icon-button icon="search" on-tap="_openSearchInput" hidden="[[searchOpen]]"></paper-icon-button>  
-        
-        <paper-icon-button
-          icon="refresh"
-          hidden="[[smallScreen]]"
-          on-tap="_refreshThisCalendar">
-        </paper-icon-button>
-        
-        <dropdown-menu>
-          <paper-icon-button
-            icon="icons:more-vert"
-            class="dropdown-trigger">
-          </paper-icon-button>
+      </dropdown-menu>
+    </paper-toolbar>
 
-          <div class="dropdown-content">
-            <paper-item
-              hidden="[[!smallScreen]]"
-              on-tap="_refreshThisCalendar">
-              Refresh
-            </paper-item>
-            <paper-item on-tap="_toggleShowHiddenEvents">
-              [[_getHiddenEventsToggleText(showHiddenEvents)]]
-            </paper-item>
+    <!-- Main Content -->
+    <div class="content">
+      <iron-pages attr-for-selected="page-name" selected="[[page]]">
+
+        <section page-name="eventList">
+          <div id="signInButtonWrapper" hidden="[[!userInfo.signedOut]]" class="centered-content">
+
+            <paper-button id="signInButton" on-click="_showSigninPopup">
+              Sign In with Google
+            </paper-button>
           </div>
-        </dropdown-menu>
-      </paper-toolbar>
 
-      <!-- Main Content -->
-      <div class="content">
-        <iron-pages attr-for-selected="page-name" selected="[[page]]">
+          <event-list id="eventList" events="{{selectedCalendar.events}}" show-hidden-events="[[showHiddenEvents]]" show-hidden-calendars="[[showHiddenCalendars]]"
+            hidden="[[userInfo.signedOut]]" on-event-finish="_onEventFinish">
+          </event-list>
 
-          <section page-name="eventList">
-            <div
-              id="signInButtonWrapper"
-              hidden="[[!userInfo.signedOut]]"
-              class="centered-content">
+          <div id="calendarErrored" class="centered-content" hidden="[[!_getCalendarErrored(userInfo.signedOut, selectedCalendar.calendarErrored, selectedCalendar.eventsErrored)]]">
 
-              <paper-button
-                id="signInButton"
-                on-click="_showSigninPopup">
-                Sign In with Google
-              </paper-button>
-            </div>
+            Oops... this calendar could not be loaded :(
+            <br>
+            <paper-button on-tap="_refreshThisCalendar">
+              Refresh
+            </paper-button>
+          </div>
 
-            <event-list
-              id="eventList"
-              events="{{selectedCalendar.events}}"
-              show-hidden-events="[[showHiddenEvents]]"
-              show-hidden-calendars="[[showHiddenCalendars]]"
-              hidden="[[userInfo.signedOut]]"
-              on-event-finish="_onEventFinish">
-            </event-list>
+          <div class="centered-content" hidden="[[!_getCalendarEmpty(userInfo.signedOut, selectedCalendar.calendarErrored, selectedCalendar.eventsErrored, selectedCalendar.eventsLoading, selectedCalendar.nextPageToken, selectedCalendar.events)]]">
 
-            <div
-              id="calendarErrored"
-              class="centered-content"
-              hidden="[[!_getCalendarErrored(userInfo.signedOut, selectedCalendar.calendarErrored, selectedCalendar.eventsErrored)]]">
+            Looks like there's nothing here.
+          </div>
 
-              Oops... this calendar could not be loaded :(
-              <br>
-              <paper-button on-tap="_refreshThisCalendar">
-                Refresh
-              </paper-button>
-            </div>
+          <div id="spinnerWrapper" class="centered-content" hidden="[[!_getCalendarLoading(userInfo.signedOut, selectedCalendar.calendarErrored, selectedCalendar.eventsErrored, selectedCalendar.eventsLoading, selectedCalendar.nextPageToken)]]">
 
-            <div
-              class="centered-content"
-              hidden="[[!_getCalendarEmpty(userInfo.signedOut, selectedCalendar.calendarErrored, selectedCalendar.eventsErrored, selectedCalendar.eventsLoading, selectedCalendar.nextPageToken, selectedCalendar.events)]]">
+            <paper-spinner active></paper-spinner>
+          </div>
+        </section>
 
-              Looks like there's nothing here.
-            </div>
-
-            <div
-              id="spinnerWrapper"
-              class="centered-content"
-              hidden="[[!_getCalendarLoading(userInfo.signedOut, selectedCalendar.calendarErrored, selectedCalendar.eventsErrored, selectedCalendar.eventsLoading, selectedCalendar.nextPageToken)]]">
-
-              <paper-spinner active></paper-spinner>
-            </div>
-          </section>
-
-        </iron-pages>
-      </div>
-    </paper-scroll-header-panel>
+      </iron-pages>
+    </div>
+  </paper-scroll-header-panel>
   </paper-drawer-panel>
 
-  <iron-media-query
-    query="max-width: 600px"
-    query-matches="{{smallScreen}}">
+  <iron-media-query query="max-width: 600px" query-matches="{{smallScreen}}">
   </iron-media-query>
 
   <paper-toast id="toast" duration="6000"></paper-toast>
 
-  <calendar-selector
-    id="calendarSelector"
-    calendars="{{calendars}}"
-    selected-calendar="{{selectedCalendar}}">
+  <calendar-selector id="calendarSelector" calendars="{{calendars}}" selected-calendar="{{selectedCalendar}}">
   </calendar-selector>
 
-  <api-manager
-    id="apiManager"
-    user-info="{{userInfo}}"
-    calendars="{{calendars}}"
-    has-hidden-calendars="{{hasHiddenCalendars}}"
-    show-hidden-events="[[showHiddenEvents]]"
-    show-hidden-calendars="[[showHiddenCalendars]]"
-    search="[[search]]"
-    on-error="showErrorToast"
+  <api-manager id="apiManager" user-info="{{userInfo}}" calendars="{{calendars}}" has-hidden-calendars="{{hasHiddenCalendars}}"
+    show-hidden-events="[[showHiddenEvents]]" show-hidden-calendars="[[showHiddenCalendars]]" search="[[search]]" on-error="showErrorToast"
     on-network-error="showNetworkErrorToast">
   </api-manager>
 
-</template>
+  </template>
 
-<script src="x-app.js"></script>
+  <script src="x-app.js"></script>
 
 </dom-module>

@@ -27,7 +27,8 @@ Polymer({
   ready() {
     this.showHiddenCalendars = false;
     this.showHiddenEvents = false;
-
+    this.searchOpen = false;
+    this.searchValue = this.$.searchBar.searchValue;
     this.$.apiManager.signIn(true);
   },
 
@@ -156,15 +157,9 @@ Polymer({
     this.$.apiManager.reloadEvents(this.selectedCalendar);
     this.$.eventList.openedIndex = 0;
   },
-  
-  _openSearchInput(){
-      console.log("Open");
-      this.searchOpen = true;
-  },
-  
-  _closeSearchInput(){
-      console.log("Close");
-      this.searchOpen = false;
+
+  _openSearchBar() {
+    this.$.searchBar.open();
   },
 
   //

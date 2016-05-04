@@ -1,0 +1,36 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="search-bar">
+
+  <style>
+    :host {
+      display: inline-block;
+    }
+    
+    #searchBarWraper {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+    
+    #input {
+      background-color: transparent;
+      border: none;
+      color: white;
+      font-size: 1.2em;
+    }
+    
+    #input:focus {
+      outline: none;
+    }
+  </style>
+
+  <template>
+  <div on-tap="_onTapped" hidden="[[!isOpen]]" id="searchBarWraper">
+    <paper-icon-button src="../../images/touch/ic_arrow_back_white_24px.svg" on-tap="close"></paper-icon-button>
+    <input id="input" is="iron-input" placeholder="Search" bind-value="{{searchValue}}">
+  </div>
+</template>
+
+  <script src="search-bar.js"></script>
+
+</dom-module>
