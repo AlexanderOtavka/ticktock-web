@@ -1,9 +1,14 @@
 'use strict';
 
 if (DEV) {
-  window.assert = condition => {
+  window.assert = (condition, message) => {
     if (!condition) {
-      throw new Error('Assertion Error');
+      let errMessage = 'Assertion Error';
+      if (message) {
+        errMessage += `: ${message}`;
+      }
+
+      throw new Error(errMessage);
     }
   };
 } else {

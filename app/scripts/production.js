@@ -1,3 +1,3 @@
-if (window.DEV === undefined) {
+if (!window.hasOwnProperty('DEV')) {
   window.DEV = false;
 }

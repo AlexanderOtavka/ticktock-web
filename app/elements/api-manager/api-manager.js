@@ -1,5 +1,9 @@
+/* globals CompositeEventGroup, EventGroup, Comparisons */
+
 (function () {
 'use strict';
+
+const { compareDateStrings, compareEvents } = Comparisons;
 
 //
 // API configuration
@@ -35,21 +39,6 @@ const LOADING_USER_INFO = {
   signedOut: false,
 };
 
-const ALL_CALENDAR = {
-  name: 'All Calendars',
-  calendarId: '*',
-  color: '#e91e63',
-  icon: 'ticktock:calendar-multiple',
-  noMenu: true,
-  eventsErrored: false,
-  eventsLoading: true,
-  calendarErrored: false,
-  calendarLoading: false,
-  hidden: false,
-  events: [],
-  nextPageToken: null,
-};
-
 const CALENDAR_ERROR_FIELDS = {
   eventsErrored: true,
   eventsLoading: false,
@@ -83,7 +72,10 @@ CHALLENGES (*) and solutions (-):
     - Add methods on api-manager, which update the splices, but also call
       EventGroup updater methods.  These methods call the updater methods for
       the EventGroups of both the event's calendar and the ALL_CALENDAR
-      EventGroup.
+      EventGroup.  EventGroup updater methods return the splices to be passed to
+      updateSplices.
+
+CIRCULAR REFERENCES OK
 
 Array mutators:
 * deleteEventById - Removes an item
@@ -92,8 +84,9 @@ Array mutators:
 
 ***********************************/
 
-let _calendars = [ALL_CALENDAR];
-let _calendarsLoading = true;
+let _eventGroups = new WeakMap([
+  [ALL_CALENDAR, ALL_CALENDAR.eventGroup],
+]);
 
 let _instantiated = false;
 
@@ -133,6 +126,10 @@ Polymer({
       observer: '_searchChanged',
       value: null,
     },
+    eventFilters: {
+      type: Object,
+      computed: '_getEventFilters(showHiddenEvents, search)',
+    },
   },
 
   observers: [
@@ -147,8 +144,28 @@ Polymer({
     if (!_instantiated) {
       _instantiated = true;
     } else {
-      throw new TypeError('gapi-manager element is meant to be a singleton.');
+      throw new TypeError('api-manager element is meant to be a singleton.');
     }
+
+    this.allCalendar = {
+      name: 'All Calendars',
+      calendarId: '*',
+      color: '#e91e63',
+      icon: 'ticktock:calendar-multiple',
+      noMenu: true,
+      eventsErrored: false,
+      eventsLoading: true,
+      calendarErrored: false,
+      calendarLoading: false,
+      hidden: false,
+      events: [],
+      nextPageToken: null,
+      eventGroup: new CompositeEventGroup(this, this.allCalendar,
+                                          this.eventFilters),
+    };
+
+    this._calendars = [this.allCalendar];
+    this._calendarsLoading = true;
   },
 
   //
@@ -238,23 +255,38 @@ Polymer({
   },
 
   deleteEventById(calendarId, eventId) {
-    let calendar = this.getCalendarById(calendarId);
+    let calendar = this.calendars.find(calendar =>
+      calendar.calendarId === calendarId
+    );
 
-    {
-      let i = getEventIndexById(calendar, eventId);
-      if (i !== -1) {
-        let calendarKey = this._getCalendarKey(calendar);
-        this.splice(['calendars', calendarKey, 'events'], i, 1);
-      }
-    }
+    _eventGroups.get(calendar).removeById(calendarId, eventId);
 
-    {
-      let i = getEventIndexById(ALL_CALENDAR, eventId, calendarId);
-      if (i !== -1) {
-        let calendarKey = this._getCalendarKey(ALL_CALENDAR);
-        this.splice(['calendars', calendarKey, 'events'], i, 1);
-      }
-    }
+    // {
+    //   let i = getEventIndexById(calendar, eventId);
+    //   if (i !== -1) {
+    //     let calendarKey = this._getCalendarKey(calendar);
+    //     this.splice(['calendars', calendarKey, 'events'], i, 1);
+    //   }
+    // }
+    //
+    // {
+    //   let i = getEventIndexById(ALL_CALENDAR, eventId, calendarId);
+    //   if (i !== -1) {
+    //     let calendarKey = this._getCalendarKey(ALL_CALENDAR);
+    //     this.splice(['calendars', calendarKey, 'events'], i, 1);
+    //   }
+    // }
+  },
+
+  //
+  // Getters
+  //
+
+  _getEventFilters(showHidden, search) {
+    return {
+      hidden: showHidden ? null : false,
+      search: search || null,
+    };
   },
 
   //
@@ -304,6 +336,9 @@ Polymer({
         this._filterCalendars();
       }
 
+      let hasHiddenCalendars = _calendars.find(calendar => calendar.hidden);
+      this._setHasHiddenCalendars(Boolean(hasHiddenCalendars));
+
       return true;
     } else {
       return false;
@@ -347,13 +382,10 @@ Polymer({
    * @param {Object} props
    */
   _setCalendarProps(calendar, props, key = this._getCalendarKey(calendar)) {
-    let propNames = Object.keys(props);
-    propNames.forEach(name => {
-      calendar[name] = props[name];
-    });
+    Object.assign(calendar, props);
 
     if (key !== null) {
-      propNames.forEach(name => {
+      Object.keys(props).forEach(name => {
         this.notifyPath(`calendars.${key}.${name}`, props[name]);
       });
     }
@@ -445,7 +477,7 @@ Polymer({
           if (duplicateIndex !== -1) {
             let duplicate = _calendars.splice(duplicateIndex, 1)[0];
             duplicateKey = this._getCalendarKey(duplicate);
-            updateObject(duplicate, calendar);
+            Object.assign(duplicate, calendar);
             calendar = duplicate;
             calendars.splice(i, 1, calendar);
           }
@@ -467,6 +499,12 @@ Polymer({
           if (calendar.hidden) {
             hasHiddenCalendars = true;
           }
+
+          if (!_eventGroups.has(calendar)) {
+            let eventGroup = new EventGroup(this, calendar, this.eventFilters);
+            _eventGroups.set(calendar, eventGroup);
+            ALL_CALENDAR_EVENT_GROUP.addChild(eventGroup);
+          }
         });
 
         this._setHasHiddenCalendars(hasHiddenCalendars);
@@ -478,7 +516,7 @@ Polymer({
           }
         });
 
-        _calendars = _calendars.concat(calendars);
+        _calendars.push(...calendars);
         this._filterCalendars();
 
         return calendars;
@@ -486,45 +524,42 @@ Polymer({
   },
 
   _loadEvents(calendars) {
-    let timeZone;
-    try {
-      timeZone =  Intl.DateTimeFormat().resolvedOptions().timeZone;
-    } catch (err) {
-      timeZone = null;
-    }
-
     let promise = Promise.all(calendars.map(calendar => {
       let calendarKey = this._getCalendarKey(calendar);
       this._setCalendarProps(calendar, {
-        events: [],
+        // events: [],
         eventsErrored: false,
         eventsLoading: true,
       }, calendarKey);
 
+      // let apiRequest = ticktockAPILoaded
+      //   .then(ticktock => ticktock.events.list({
+      //     calendarId: encodeURIComponent(calendar.calendarId),
+      //     hidden: null,
+      //     maxResults: 10,
+      //     timeZone: timeZone,
+      //   }));
+      //
+      // return this._sendReAuthedRequest(apiRequest)
+      //   .then(({ items: events, nextPageToken = null }) => {
+      //     calendarKey = this._getCalendarKey(calendar);
+      //
+      //     this._setCalendarProps(calendar, { nextPageToken }, calendarKey);
+      //
+      //     if (events) {
+      //       events.forEach(calendarEvent => {
+      //         calendarEvent.color = calendar.color;
+      //         calendarEvent.calendarHidden = calendar.hidden;
+      //       });
+      //
+      //       events = events.sort(compareEvents);
+      //       this._setCalendarProps(calendar, { events }, calendarKey);
+      //     }
+      //   })
       let apiRequest = ticktockAPILoaded
-        .then(ticktock => ticktock.events.list({
-          calendarId: encodeURIComponent(calendar.calendarId),
-          hidden: null,
-          maxResults: 10,
-          timeZone: timeZone,
-        }));
+        .then(api => _eventGroups.get(calendar).loadNext(api));
 
       return this._sendReAuthedRequest(apiRequest)
-        .then(({ items: events, nextPageToken = null }) => {
-          calendarKey = this._getCalendarKey(calendar);
-
-          this._setCalendarProps(calendar, { nextPageToken }, calendarKey);
-
-          if (events) {
-            events.forEach(calendarEvent => {
-              calendarEvent.color = calendar.color;
-              calendarEvent.calendarHidden = calendar.hidden;
-            });
-
-            events = events.sort(compareEvents);
-            this._setCalendarProps(calendar, { events }, calendarKey);
-          }
-        })
         .catch(err => {
           this._setCalendarProps(calendar, { eventsErrored: true },
                                  calendarKey);
@@ -546,12 +581,14 @@ Polymer({
   /**
    * Update event's data on the server.
    *
-   * @param {Object} params - Calendar and event ids as well as new starred
-   *   and/or hidden state.
+   * @param {Object} calendarEvent
    * @return {Promise} - Promise that resolves to the new event state.
    */
-  _patchEvent({ calendarId, eventId, starred, hidden }) {
-    this._singleSortEvent(eventId, calendarId);
+  _patchEvent(calendarEvent) {
+    let { calendarId, eventId, starred, hidden } = calendarEvent;
+
+    let calendar = this.getCalendarById(calendarId);
+    _eventGroups.get(calendar).sortEvent(calendarEvent);
 
     let apiRequest = ticktockAPILoaded
       .then(ticktock => ticktock.events.patch({
@@ -568,11 +605,11 @@ Polymer({
   /**
    * Update calendar's data on the server.
    *
-   * @param {Object} params - Calendar id and new hidden state.
+   * @param {Object} calendar
    * @return {Promise} - Promise that resolves to the new calendar state.
    */
-  _patchCalendar({ calendarId, hidden }) {
-    let calendar = this.getCalendarById(calendarId);
+  _patchCalendar(calendar) {
+    let { calendarId, hidden } = calendar;
     let calendarKey = this._getCalendarKey(calendar);
     let allCalendarKey = this._getCalendarKey(ALL_CALENDAR);
 
@@ -689,14 +726,13 @@ Polymer({
    *
    * Uses the insertion sort algorithm, and notifies splices.
    *
-   * @param {String} eventId - The event's ID.
-   * @param {String} calendarId - The event's calendar's ID.
+   * @param {Object} calendarEvent
    */
-  _singleSortEvent(eventId, calendarId) {
-    let calendar = this.getCalendarById(calendarId);
-    this._singleSortByCalendar(calendar, eventId);
+  _singleSortEvent(calendarEvent) {
+    let calendar = this.getCalendarById(calendarEvent.calendarId);
+    this._singleSortByCalendar(calendar, calendarEvent.eventId);
     if (calendar !== ALL_CALENDAR) {
-      this._singleSortByCalendar(ALL_CALENDAR, eventId);
+      this._singleSortByCalendar(ALL_CALENDAR, calendarEvent.eventId);
     }
   },
 
@@ -793,42 +829,12 @@ Polymer({
 // Utility functions
 //
 
-function getEventIndexById(calendar, eventId,
-                           calendarId = calendar.calendarId) {
-  return calendar.events.findIndex(calendarEvent =>
-    calendarEvent.eventId === eventId &&
-    calendarEvent.calendarId === calendarId
-  );
-}
-
-function compareBools(a, b) {
-  // True is first.
-  return b - a;
-}
-
-function compareStrings(a, b) {
-  // Sort alphabetically, any language, case insensitive.
-  return a.localeCompare(b);
-}
-
-function compareDateStrings(a, b) {
-  return compareStrings(a, b);
-}
-
-function compareEvents(a, b) {
-  // Sort order: starred, duration, alphabetical, id.
-  return compareBools(a.starred, b.starred) ||
-         compareDateStrings(a.startDate || a.endDate,
-                            b.startDate || b.endDate) ||
-         compareStrings(a.name, b.name) ||
-         compareStrings(a.eventId, b.eventId) ||
-         0;
-}
-
-function updateObject(object, newValues) {
-  Object.keys(newValues).forEach(key => {
-    object[key] = newValues[key];
-  });
-}
+// function getEventIndexById(calendar, eventId,
+//                            calendarId = calendar.calendarId) {
+//   return calendar.events.findIndex(calendarEvent =>
+//     calendarEvent.eventId === eventId &&
+//     calendarEvent.calendarId === calendarId
+//   );
+// }
 
 })();
